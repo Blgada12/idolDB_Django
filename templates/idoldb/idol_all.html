@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>아이돌 전체 목록</title>
+    <style>
+        .profile{
+            height:100px;
+        }
+    </style>
+</head>
+<body>
+{% for idol in idols %}
+    <a href="/idoldb/detail/{{ idol.id }}">
+        <div style="background-color: {{ idol.color }}" >
+            <img class="profile" src="{{ idol.mainPicture.url }}" alt="">
+            <strong>{{ idol.KoreanName }}</strong>
+        </div>
+    </a>
+{% endfor %}
+</body>
+</html>

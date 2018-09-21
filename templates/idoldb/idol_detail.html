@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% if idol %}
+    <title>{{ idol.KoreanName }}</title>
+    {% else %}
+    <title>찾을 수 없습니다.</title>
+    {% endif %}
+</head>
+<body>
+    {% if idol %}
+        <div style="background-color: {{ idol.color }}">
+            <img class="profile" src="{{ idol.mainPicture.url }}" alt="">
+            <strong>{{ idol.KoreanName }}</strong><br>
+            <strong>{{ idol.KanjiName }}({{ idol.JapaneseName }})</strong><br>
+        </div>
+    {% else %}
+        <div>다시 시도해주세요</div>
+    {% endif %}
+
+</body>
+</html>
