@@ -3,8 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
+
+    <style>
+        table{
+            text-align: center;
+        }
+        .profile_img{
+            height: 200px;
+        }
+    </style>
 </head>
 <body>
-    <a href="/idoldb/all">아이돌 전체</a>
+오늘 생일인 아이돌
+{% if isToday %}
+    {% for idol in today %}
+        <a href="/idoldb/detail/{{ idol.id }}">
+            <table style="background-color: {{ idol.color }}">
+                <tr>
+                    <td>
+                        <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ idol.KoreanName }}</strong>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td>
+                        {{ idol.KanjiName }}({{ idol.JapaneseName }})
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ idol.birth.month }}월 {{ idol.birth.day }}일
+                    </td>
+                </tr>
+            </table>
+        </a>
+    {% endfor %}
+{% else %}
+            <table style="background-color: #7d8080">
+                <tr>
+                    <td>
+                        <img class="profile_img" src="" alt="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>오늘이 생일인 아이돌이 없습니다!</strong>
+                    </td>
+                </tr>
+            </table>
+{% endif %}
+<br>
+<br>
+다음 생일인 아이돌
+{% for idols in after %}
+    {% for idol in idols %}
+        <a href="/idoldb/detail/{{ idol.id }}">
+            <table style="background-color: {{ idol.color }}">
+                <tr>
+                    <td>
+                        <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>{{ idol.KoreanName }}</strong>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td>
+                        {{ idol.KanjiName }}({{ idol.JapaneseName }})
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        {{ idol.birth.month }}월 {{ idol.birth.day }}일
+                    </td>
+                </tr>
+            </table>
+        </a>
+    {% endfor %}
+{% endfor %}
+<br>
+<br>
+<a href="/idoldb/all">아이돌 전체</a>
 </body>
 </html>
