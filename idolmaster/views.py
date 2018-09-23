@@ -16,7 +16,7 @@ def idol_main(req):
         idol.birth = idol.birth.replace(today_time.year + 1, idol.birth.month, idol.birth.day)
         idol.save()
 
-    after_idols = idols.filter(birth__gt=today_time)
+    after_idols = idols.filter(birth__gt=today_time).order_by('birth')
 
     after_date = list()
     for idol in after_idols:
@@ -34,7 +34,7 @@ def idol_main(req):
 
     for i in after_date:
         after_idols_result.append(idols.filter(birth__day=i[1], birth__month=i[0]))
-
+    print(today_idols)
     return render(req, 'idoldb/index.html', {'today': today_idols, 'isToday': True if
     len(today_idols) > 0 else False, 'after': after_idols_result})
 

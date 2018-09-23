@@ -3,91 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
-
     <style>
-        table{
+        @import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
+        body{
+            font-family: "Nanum Gothic", serif
+        }
+        a {
+            color: #000000;
+            text-decoration: none;
+        }
+        a:hover
+        {
+             color: #000000;
+             text-decoration:none;
+             cursor:pointer;
+        }
+        .card{
+            float: contour;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            width:230px;
             text-align: center;
+            border-radius: 10px;
+            border: 2px solid #000;
+        }
+        .card:hover{
+            color: #888888;
+            border: 2px solid #888888;
+        }
+        .card .card_name{
+            font-size: 1.3em;
+            bottom:10px;
+        }
+        .card .card_japaneseName{
+            font-size: 0.75em;
+        }
+        .card .card_birth{
+            font-size: 1.1em;
         }
         .profile_img{
             height: 200px;
+            margin-bottom: 7.5px;
         }
     </style>
+
+    <script>
+
+    </script>
 </head>
 <body>
-오늘 생일인 아이돌
+<h2>오늘 생일인 아이돌</h2>
 {% if isToday %}
     {% for idol in today %}
         <a href="/idoldb/detail/{{ idol.id }}">
-            <table style="background-color: {{ idol.color }}">
-                <tr>
-                    <td>
-                        <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>{{ idol.KoreanName }}</strong>
-                    </td>
-                </tr>
-                <tr>
-
-                    <td>
-                        {{ idol.KanjiName }}({{ idol.JapaneseName }})
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{ idol.birth.month }}월 {{ idol.birth.day }}일
-                    </td>
-                </tr>
-            </table>
+            <div class="card" style="background-color: {{ idol.color }}">
+                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt=""><br>
+                <span class="card_name">{{ idol.KoreanName }}</span><br>
+                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
+                <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
+            </div>
         </a>
     {% endfor %}
 {% else %}
-            <table style="background-color: #7d8080">
-                <tr>
-                    <td>
-                        <img class="profile_img" src="" alt="">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>오늘이 생일인 아이돌이 없습니다!</strong>
-                    </td>
-                </tr>
-            </table>
+        <div class="card" style="background-color: #c0c0c0">
+            <img class="profile_img" src="" alt=""><br>
+            <span class="card_name">None</span><br>
+            <span class="card_japaneseName">오늘이 생일인 아이돌이 없습니다!</span><br>
+            <span class="card_birth">XX월 XX일</span>
+        </div>
 {% endif %}
 <br>
 <br>
-다음 생일인 아이돌
+<h2>다음 생일인 아이돌</h2>
 {% for idols in after %}
+    <div>
     {% for idol in idols %}
         <a href="/idoldb/detail/{{ idol.id }}">
-            <table style="background-color: {{ idol.color }}">
-                <tr>
-                    <td>
-                        <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>{{ idol.KoreanName }}</strong>
-                    </td>
-                </tr>
-                <tr>
-
-                    <td>
-                        {{ idol.KanjiName }}({{ idol.JapaneseName }})
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        {{ idol.birth.month }}월 {{ idol.birth.day }}일
-                    </td>
-                </tr>
-            </table>
+            <div class="card" style="background-color: {{ idol.color }}">
+                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt=""><br>
+                <span class="card_name">{{ idol.KoreanName }}</span><br>
+                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
+                <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
+            </div>
         </a>
     {% endfor %}
+    </div>
 {% endfor %}
 <br>
 <br>
