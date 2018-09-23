@@ -1,0 +1,51 @@
+@import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
+body{
+    text-align: center;
+    font-family: "Nanum Gothic", serif;
+    margin-bottom: 50px;
+}
+a {
+    color: #000000;
+    text-decoration: none;
+}
+a:hover
+{
+     color: #000000;
+     text-decoration:none;
+     cursor:pointer;
+}
+.card{
+    float: contour;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    width:230px;
+    text-align: center;
+    border-radius: 10px;
+    border: 2px solid #000;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.card:hover{
+    color: #888888;
+    border: 2px solid #888888;
+}
+.cardGroup{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap:wrap;
+}
+.card .card_name{
+    font-size: 1.3em;
+}
+.card .card_japaneseName{
+    font-size: 0.75em;
+}
+.card .card_birth{
+    font-size: 1.1em;
+}
+.profile_img{
+    height: 200px;
+    margin-bottom: 8px;
+}
