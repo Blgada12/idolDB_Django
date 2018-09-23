@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'idolmaster.apps.IdolmasterConfig',
-    'main.apps.MainConfig'
+    'main',
+    'idolmaster'
 ]
 
 MIDDLEWARE = [

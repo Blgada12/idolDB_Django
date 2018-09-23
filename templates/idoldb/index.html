@@ -1,64 +1,13 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
-    <style>
-        @import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
-        body{
-            text-align: center;
-            font-family: "Nanum Gothic", serif;
-            margin-bottom: 50px;
-        }
-        a {
-            color: #000000;
-            text-decoration: none;
-        }
-        a:hover
-        {
-             color: #000000;
-             text-decoration:none;
-             cursor:pointer;
-        }
-        .card{
-            float: contour;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            width:230px;
-            text-align: center;
-            border-radius: 10px;
-            border: 2px solid #000;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-        .card:hover{
-            color: #888888;
-            border: 2px solid #888888;
-        }
-        .cardGroup{
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-        }
-        .card .card_name{
-            font-size: 1.3em;
-            bottom:10px;
-        }
-        .card .card_japaneseName{
-            font-size: 0.75em;
-        }
-        .card .card_birth{
-            font-size: 1.1em;
-        }
-        .profile_img{
-            height: 200px;
-            margin-bottom: 7.5px;
-        }
-    </style>
 
-    <script>
-
-    </script>
 </head>
 <body>
 <h1>아이돌마스터 데이터베이스</h1><br>
@@ -66,23 +15,27 @@
 {% if isToday %}
     <div class="cardGroup">
     {% for idol in today %}
+        <a href="/idoldb/detail/{{ idol.id }}">
         <div class="card" style="background-color: {{ idol.color }}">
-            <a href="/idoldb/detail/{{ idol.id }}">
-                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt=""><br>
-                <span class="card_name">{{ idol.KoreanName }}</span><br>
-                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
-                <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
-            </a>
+                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                <div class="card_inside1">
+                    <span class="card_name">{{ idol.KoreanName }}</span><br>
+                    <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
+                    <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
+                </div>
         </div>
+        </a>
     {% endfor %}
     </div>
 {% else %}
     <div class="cardGroup">
         <div class="card" style="background-color: #c0c0c0">
-            <img class="profile_img" src="" alt=""><br>
-            <span class="card_name">None</span><br>
-            <span class="card_japaneseName">오늘이 생일인 아이돌이 없습니다!</span><br>
-            <span class="card_birth">XX월 XX일</span>
+            <img class="profile_img" src="" alt="">
+            <div class="card_inside1">
+                <span class="card_name">None</span><br>
+                <span class="card_japaneseName">오늘이 생일인 아이돌이 없습니다!</span><br>
+                <span class="card_birth">XX월 XX일</span>
+            </div>
         </div>
     </div>
 {% endif %}
@@ -92,17 +45,18 @@
 {% for idols in after %}
     <div class="cardGroup">
     {% for idol in idols %}
-        <div class="card" style="background-color: {{ idol.color }}">
-            <a href="/idoldb/detail/{{ idol.id }}">
-                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt=""><br>
-                <span class="card_name">{{ idol.KoreanName }}</span><br>
-                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
-                <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
-            </a>
-        </div>
+        <a href="/idoldb/detail/{{ idol.id }}">
+            <div class="card" style="background-color: {{ idol.color }}">
+                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                <div class="card_inside1">
+                    <span class="card_name">{{ idol.KoreanName }}</span><br>
+                    <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
+                    <span class="card_birth">{{ idol.birth.month }}월 {{ idol.birth.day }}일</span>
+                </div>
+            </div>
+        </a>
     {% endfor %}
     </div>
-    <br>
 {% endfor %}
 <br>
 <br>

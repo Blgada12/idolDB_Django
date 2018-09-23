@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>아이돌 전체 목록</title>
-    <style>
-        .profile{
-            height:100px;
-        }
-    </style>
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
+
 </head>
 <body>
+<h2>모든 아이돌 목록</h2>
+<div class="cardGroup">
 {% for idol in idols %}
     <a href="/idoldb/detail/{{ idol.id }}">
-        <div style="background-color: {{ idol.color }}" >
-            <img class="profile" src="{{ idol.mainPicture.url }}" alt="">
-            <strong>{{ idol.KoreanName }}</strong>
+        <div class="card" style="background-color: {{ idol.color }}">
+            <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+            <div class="card_inside2">
+                <span class="card_name">{{ idol.KoreanName }}</span><br>
+                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span>
+            </div>
         </div>
     </a>
 {% endfor %}
+</div>
 </body>
 </html>
