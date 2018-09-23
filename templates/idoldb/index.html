@@ -1,13 +1,10 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
-
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
 </head>
 <body>
 <h1>아이돌마스터 데이터베이스</h1><br>
@@ -30,7 +27,8 @@
 {% else %}
     <div class="cardGroup">
         <div class="card" style="background-color: #c0c0c0">
-            <img class="profile_img" src="" alt="">
+            {% load staticfiles %}
+            <img class="profile_img" src="{% static 'idoldb/x_icon.png' %}" alt="">
             <div class="card_inside1">
                 <span class="card_name">None</span><br>
                 <span class="card_japaneseName">오늘이 생일인 아이돌이 없습니다!</span><br>
