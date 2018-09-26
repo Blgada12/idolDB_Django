@@ -7,13 +7,31 @@
     {% else %}
     <title>찾을 수 없습니다.</title>
     {% endif %}
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
+
 </head>
 <body>
     {% if idol %}
-        <div style="background-color: {{ idol.color }}">
-            <img class="profile" src="{{ idol.mainPicture.url }}" alt="">
-            <strong>{{ idol.KoreanName }}</strong><br>
-            <strong>{{ idol.KanjiName }}({{ idol.JapaneseName }})</strong><br>
+        <div class="cardGroup">
+            <div>
+                <img class="detail_img" src="{{ idol.mainPicture.url }}" alt="">
+            </div>
+            <div class="profile_detail" style="border:1px solid {{ idol.color }};">
+                <div class="card_detail">
+                    <h3>
+                        {{ idol.KoreanName }}
+                    </h3>
+                    {{ idol.KanjiName }}({{ idol.JapaneseName }})
+                </div>
+                <div class="card_info">
+                    나이 : {{ idol.age }}세
+                </div>
+                <div>
+                    키 : {{ idol.height }}cm
+                </div>
+            </div>
+
         </div>
     {% else %}
         <div>다시 시도해주세요</div>

@@ -1,8 +1,10 @@
 @import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
 body{
+    font-family: "Nanum Gothic", serif;
+}
+.design1{
     padding-top: 20px;
     text-align: center;
-    font-family: "Nanum Gothic", serif;
     margin-bottom: 50px;
 }
 a {
@@ -19,6 +21,8 @@ a:hover
     padding-bottom: 15px;
     width:230px;
     text-align: center;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
     border-radius: 10px;
     border: 2px solid #000;
     margin: 10px;
@@ -51,4 +55,37 @@ a:hover
 .profile_img{
     height: 200px;
     margin-bottom: 8px;
+}
+.sign_img{
+    height: 100px!important;
+}
+#detail_table{
+    border: 1px solid;
+    border-collapse: collapse;
+}
+tr{
+    border:1px solid #000;
+    border-collapse: collapse;
+}
+td{
+    border:1px solid #000;
+    border-collapse: collapse;
+}
+.detail_img{
+    height: 400px;
+    margin: 10px;
+}
+.card_detail{
+    text-align: center;
+    margin-bottom: 25px;
+}
+.card_info{
+    margin-bottom: 10px;
+}
+.profile_detail{
+    width: 300px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 20px;
 }
