@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>아이돌 전체 목록</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
 
 </head>
 <body class="design1">
 <h2>모든 아이돌 목록</h2>
+<div class="pro_select">
+{% for pro in productions %}
+    {% if pro in selected_pro %}
+        <a href="/idoldb/all/?unclicked={{ pro.id }}">
+            <img id="{{ pro.name }}" class="pro_select_img_checked" src="{{ pro.logo.url }}" >
+        </a>
+    {% else %}
+        <a href="/idoldb/all/?clicked={{ pro.id }}">
+            <img id="{{ pro.name }}" class="pro_select_img" src="{{ pro.logo.url }}">
+        </a>
+    {% endif %}
+{% endfor %}
+</div>
+<div class="go_main">
+<a href="/idoldb/">메인 페이지 가기</a>
+</div>
 <div class="cardGroup">
 {% for idol in idols %}
     <a href="/idoldb/detail/{{ idol.id }}">

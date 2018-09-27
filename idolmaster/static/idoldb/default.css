@@ -59,33 +59,75 @@ a:hover
 .sign_img{
     height: 100px!important;
 }
-#detail_table{
-    border: 1px solid;
-    border-collapse: collapse;
+.pro_img{
+    height: 70px!important;
 }
-tr{
-    border:1px solid #000;
-    border-collapse: collapse;
+.pro_select_img{
+    cursor: pointer;
+    height: 35px!important;
+    border: 2px solid gray;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
-td{
-    border:1px solid #000;
-    border-collapse: collapse;
+.pro_select_img_checked{
+    cursor: pointer;
+    height: 35px;
+    border: 2px solid greenyellow;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 .detail_img{
     height: 400px;
-    margin: 10px;
+    margin: 50px;
 }
 .card_detail{
     text-align: center;
     margin-bottom: 25px;
 }
-.card_info{
-    margin-bottom: 10px;
-}
 .profile_detail{
-    width: 300px;
+    width: 350px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
     padding: 20px;
+}
+#table_card{
+    width: 330px;
+    text-align: center;
+    display:block !important;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+.pro_select{
+    display: flex;
+    justify-content: center;
+}
+#table_card .tdTitle {
+    width: 110px;
+}
+#table_card .tdInfo {
+    width: 220px;
+    height: 30px;
+}
+#table_card .tdInfo2 {
+    width: 225px;
+    height: 70px;
+}
+#table_card .tdInfo3 {
+    width: 225px;
+    padding-top: 10px;
+}
+#go_allidol{
+    font-size: 1.5em;
+}
+.go_main{
+    margin: 20px;
+    font-size: 1.5em;
+    text-align: center!important;
 }

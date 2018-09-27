@@ -3,11 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
 </head>
 <body class="design1">
-<h1>아이돌마스터 데이터베이스</h1><br>
+<h1>아이돌마스터 DB</h1>
+<div class="pro_select">
+{% for pro in productions %}
+    {% if pro in selected_pro %}
+        <a href="/idoldb/?unclicked={{ pro.id }}">
+            <img id="{{ pro.name }}" class="pro_select_img_checked" src="{{ pro.logo.url }}" >
+        </a>
+    {% else %}
+        <a href="/idoldb/?clicked={{ pro.id }}">
+            <img id="{{ pro.name }}" class="pro_select_img" src="{{ pro.logo.url }}">
+        </a>
+    {% endif %}
+{% endfor %}
+</div>
+<br>
 <h2>오늘 생일인 아이돌</h2>
 {% if isToday %}
     <div class="cardGroup">
@@ -58,6 +73,17 @@
 {% endfor %}
 <br>
 <br>
-<a href="/idoldb/all">아이돌 전체</a>
+<a id="go_allidol" href="/idoldb/all">모든 아이돌 보기</a>
+<br><br>
+<h4>Beta v09.27.1</h4>
+초기 서빙용 버전
+<br><br>
+본 프로젝트는<br>
+<a href="http://blgada12.tistory.com/category/PROJECT/아이돌DB%20-%20Django%20-%20ServerProgramming" target="_blank">티스토리 블로그에 개발 노트가 올라가며</a><br>
+<a href="https://github.com/Blgada12/idolDB_Django" target="_blank">Github에 소스를 공개한 프로젝트 입니다.</a><br>
+모든 사진의 저작권은 반다이 남코 엔터테이먼트에게 있습니다.<br>
+문의 : nonamep765@gmail.com
+
+
 </body>
 </html>
