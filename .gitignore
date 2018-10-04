@@ -104,3 +104,23 @@ venv.bak/
 .mypy_cache/
 
 .idea/
+
+.config_secret/
+        settings_common.json
+        settings_debug.json
+        settings_deploy.json
+ngdb/
+    config/
+        settings/
+          __init__.py
+          base.py
+          debug.py
+          deploy.py
+        wsgi
+          __init__.py
+          debug.py
+          deploy.py
+        __init__py
+        urls.py
+    manage.py
+..

@@ -37,7 +37,24 @@
             </div>
         </div>
     </a>
+
 {% endfor %}
 </div>
+<div id="all_index">
+    {% for index in full_index %}
+        <a href="/idoldb/all/?index={{ index }}">
+            {% if index == now_index %}
+                <div class="one_index_now">
+                    {{ index }}
+                </div>
+            {% else %}
+                <div class="one_index">
+                    {{ index }}
+                </div>
+            {% endif %}
+        </a>
+    {% endfor %}
+</div>
+
 </body>
 </html>

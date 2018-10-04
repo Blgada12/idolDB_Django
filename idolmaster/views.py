@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect
 from .models import Idol, Production
 from .utils import get_idol_byId
 from django.utils import timezone
+import math
 
 AFTER_INDEX = 3
+PAGE_INDEX = 14
 
 
 def idol_main(req):
@@ -70,7 +72,6 @@ def idol_main(req):
 
     after_idols_result = list()
 
-
     for i in after_date:
         after_idols_result.append(idols.filter(birth__day=i[1], birth__month=i[0]))
     return render(req, 'idoldb/index.html', {'today': today_idols, 'isToday': True if
@@ -79,11 +80,25 @@ def idol_main(req):
 
 
 def idol_all(req):
+    # 인덱싱 기능
+    index: str = req.GET.get('index')
+    if index:
+        req.session['index'] = index
+        return redirect(idol_all)
+
+    if not req.session.get('index', False):
+        req.session['index'] = 1
+
+    index: int = int(req.session['index'])-1
+
+
+    # 분류 직접박기
     productions: str = req.GET.get('productions')
     if productions:
         req.session['productions'] = productions.split(',')
         return redirect(idol_all)
 
+    # 분류 추가
     clicked: str = req.GET.get('clicked')
     if clicked:
         pro_selected: list = req.session.get('productions')
@@ -93,6 +108,7 @@ def idol_all(req):
 
         return redirect(idol_all)
 
+    # 분류 제외
     unclicked: str = req.GET.get('unclicked')
     if unclicked:
         pro_selected: list = req.session.get('productions')
@@ -103,6 +119,7 @@ def idol_all(req):
 
     idols = Idol.objects.all()
 
+    # 전부 헤제되거나 처음접속이면 모두선택
     productions: str = req.GET.get('production')
     if productions:
         req.session['productions'] = productions
@@ -126,7 +143,8 @@ def idol_all(req):
         result.extend(idols.filter(production=i))
 
     return render(req, 'idoldb/idol_all.html',
-                  {'idols': result, 'productions': pro_Objects, 'selected_pro': selected_pro})
+                  {'idols': result[PAGE_INDEX*index:PAGE_INDEX*(index+1)], 'productions': pro_Objects, 'selected_pro': selected_pro,
+                   'full_index': range(1, int(math.ceil(len(result)/PAGE_INDEX))+1), 'now_index': index+1})
 
 
 def idol_detail(req, idol_id):
