@@ -14,11 +14,11 @@
 {% for pro in productions %}
     {% if pro in selected_pro %}
         <a href="/idoldb/all/?unclicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img_checked" src="{{ pro.logo.url }}" >
+            <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}" >
         </a>
     {% else %}
         <a href="/idoldb/all/?clicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img" src="{{ pro.logo.url }}">
+            <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
         </a>
     {% endif %}
 {% endfor %}
@@ -30,7 +30,7 @@
 {% for idol in idols %}
     <a href="/idoldb/detail/{{ idol.id }}">
         <div class="card" style="background-color: {{ idol.color }}">
-            <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+            <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
             <div class="card_inside2">
                 <span class="card_name">{{ idol.KoreanName }}</span><br>
                 <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span>

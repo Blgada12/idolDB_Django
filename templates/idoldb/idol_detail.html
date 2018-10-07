@@ -16,7 +16,7 @@
     {% if idol %}
         <div class="cardGroup">
             <div>
-                <img class="detail_img" src="{{ idol.mainPicture.url }}" alt="">
+                <img class="detail_img" src="/static/{{ idol.mainPicture.name }}" alt="">
             </div>
             <div class="profile_detail" style="border:2px solid {{ idol.color }};">
                 <div class="card_detail">
@@ -116,7 +116,7 @@
                                 소속
                             </td>
                             <td class="tdInfo3">
-                                <img class="pro_img" src="{{ idol.production.logo.url }}" alt="">
+                                <img class="pro_img" src="/static/{{ idol.production.logo.name }}" alt="">
                             </td>
                         </tr>
                     {% if idol.signPicture %}
@@ -125,7 +125,7 @@
                                 사인
                             </td>
                             <td class="tdInfo3">
-                                <img class="sign_img" src="{{ idol.signPicture.url }}" alt="">
+                                <img class="sign_img" src="/static/{{ idol.signPicture.name }}" alt="">
                             </td>
                         </tr>
                     {% endif %}

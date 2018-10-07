@@ -1,0 +1,161 @@
+@import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
+body{
+    font-family: "Nanum Gothic", serif;
+}
+.design1{
+    padding-top: 20px;
+    text-align: center;
+    margin-bottom: 50px;
+}
+a {
+    color: #000000;
+    text-decoration: none;
+}
+a:hover
+{
+     text-decoration:none;
+     cursor:pointer;
+}
+.card{
+    padding-top: 15px;
+    padding-bottom: 15px;
+    width:230px;
+    text-align: center;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    margin: 10px;
+}
+.card:hover{
+    color: #888888;
+    border: 2px solid #888888;
+}
+.cardGroup{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap:wrap;
+}
+.card .card_inside1{
+    height: 65px;
+}
+.card .card_inside2{
+    height: 50px;
+}
+.card .card_name{
+    font-size: 1.3em;
+}
+.card .card_japaneseName{
+    font-size: 0.75em;
+}
+.card .card_birth{
+    font-size: 1.1em;
+}
+.profile_img{
+    height: 200px;
+    margin-bottom: 8px;
+}
+.sign_img{
+    height: 100px!important;
+}
+.pro_img{
+    height: 70px!important;
+}
+.pro_select_img{
+    cursor: pointer;
+    height: 35px!important;
+    border: 2px solid gray;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.pro_select_img_checked{
+    cursor: pointer;
+    height: 35px;
+    border: 2px solid greenyellow;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+.detail_img{
+    height: 400px;
+    margin: 50px;
+}
+.card_detail{
+    text-align: center;
+    margin-bottom: 25px;
+}
+.profile_detail{
+    width: 300px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding: 20px;
+}
+#table_card{
+    width: 300px;
+    text-align: center;
+    display:block !important;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+.pro_select{
+    display: flex;
+    justify-content: center;
+}
+#table_card .tdTitle {
+    width: 110px;
+}
+#table_card .tdInfo {
+    width: 190px;
+    height: 30px;
+}
+#table_card .tdInfo2 {
+    width: 225px;
+    height: 70px;
+}
+#table_card .tdInfo3 {
+    width: 225px;
+    padding-top: 10px;
+}
+#go_allidol{
+    font-size: 1.5em;
+}
+.go_main{
+    margin: 20px;
+    font-size: 1.5em;
+    text-align: center!important;
+}
+#all_index{
+    margin-top: 30px;
+}
+.one_index{
+
+    display:table-cell; text-align:center; vertical-align:middle;
+    width: 30px;
+    height: 30px;
+    border: 2px solid gray;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    align-content: center;
+    align-items: center;
+}
+.one_index_now{
+    display:table-cell; text-align:center; vertical-align:middle;
+    width: 30px;
+    height: 30px;
+    border: 2px solid greenyellow;
+    margin: 5px;
+    padding: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}

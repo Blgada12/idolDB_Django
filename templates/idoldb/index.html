@@ -13,11 +13,11 @@
 {% for pro in productions %}
     {% if pro in selected_pro %}
         <a href="/idoldb/?unclicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img_checked" src="{{ pro.logo.url }}" >
+            <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}" >
         </a>
     {% else %}
         <a href="/idoldb/?clicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img" src="{{ pro.logo.url }}">
+            <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
         </a>
     {% endif %}
 {% endfor %}
@@ -29,7 +29,7 @@
     {% for idol in today %}
         <a href="/idoldb/detail/{{ idol.id }}">
         <div class="card" style="background-color: {{ idol.color }}">
-                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
                 <div class="card_inside1">
                     <span class="card_name">{{ idol.KoreanName }}</span><br>
                     <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
@@ -60,7 +60,7 @@
     {% for idol in idols %}
         <a href="/idoldb/detail/{{ idol.id }}">
             <div class="card" style="background-color: {{ idol.color }}">
-                <img class="profile_img" src="{{ idol.mainPicture.url }}" alt="">
+                <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
                 <div class="card_inside1">
                     <span class="card_name">{{ idol.KoreanName }}</span><br>
                     <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span><br>
@@ -75,6 +75,10 @@
 <br>
 <a id="go_allidol" href="/idoldb/all">모든 아이돌 보기</a>
 <br><br>
+<h4>Alpha v10.05.2</h4>
+배포용 프로젝트 설정 완료, DEBUG = False
+<h4>Beta v10.05.1</h4>
+아이돌 전체 목록에 인덱싱 추가(최적화 차원)
 <h4>Beta v09.27.1</h4>
 초기 서빙용 버전
 <br><br>
