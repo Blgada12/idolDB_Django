@@ -57,7 +57,8 @@ a:hover
     margin-bottom: 8px;
 }
 .sign_img{
-    height: 100px!important;
+    max-height: 100px!important;
+    max-width: 100px;
 }
 .pro_img{
     height: 70px!important;
@@ -133,6 +134,9 @@ a:hover
 }
 #all_index{
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    flex-wrap:wrap;
 }
 .one_index{
 
@@ -140,7 +144,6 @@ a:hover
     width: 30px;
     height: 30px;
     border: 2px solid gray;
-    margin: 5px;
     padding: 3px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
@@ -153,9 +156,18 @@ a:hover
     width: 30px;
     height: 30px;
     border: 2px solid greenyellow;
-    margin: 5px;
     padding: 3px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
+}
+#all_index a{
+    margin: 4px;
+}
+.btn{
+    border: 2px solid #ffd0a2;
+    padding: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }

@@ -23,9 +23,11 @@
     {% endif %}
 {% endfor %}
 </div>
+<br>
 <div class="go_main">
-<a href="/idoldb/">메인 페이지 가기</a>
+    <a href="/idoldb/" class="btn">메인 페이지 가기</a>
 </div>
+<br>
 <div class="cardGroup">
 {% for idol in idols %}
     <a href="/idoldb/detail/{{ idol.id }}">

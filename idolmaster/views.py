@@ -105,6 +105,7 @@ def idol_all(req):
         pro_selected.append(clicked)
         pro_selected.sort()
         req.session['productions'] = pro_selected
+        req.session['index'] = 1
 
         return redirect(idol_all)
 
@@ -114,6 +115,7 @@ def idol_all(req):
         pro_selected: list = req.session.get('productions')
         pro_selected.remove(unclicked)
         req.session['productions'] = pro_selected
+        req.session['index'] = 1
 
         return redirect(idol_all)
 
