@@ -5,5 +5,7 @@ from . import views
 urlpatterns = [
     path('all/', views.idol_all, name='idolAll'),
     path('detail/<int:idol_id>', views.idol_detail, name='idolDetail'),
-    path('', views.idol_main, name='idolMain')
+    path('', views.idol_main, name='idolMain'),
+    path('search/', views.idol_search, name='idolSearch'),
+    path('search/<str:value>', views.idol_search, name='idolSearch')
 ]

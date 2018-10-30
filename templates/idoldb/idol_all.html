@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
+    <link rel="shortcut icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
 
 </head>
 <body class="design1">
@@ -24,9 +26,11 @@
 {% endfor %}
 </div>
 <br>
+    <input id="searchbar" type="text" placeholder="이름 검색" value="{{ search_value }}" onkeypress="if(event.keyCode===13) {location.href='/idoldb/search/'+this.value; return false;}"/>
 <div class="go_main">
     <a href="/idoldb/" class="btn">메인 페이지 가기</a>
 </div>
+
 <br>
 <div class="cardGroup">
 {% for idol in idols %}
@@ -43,19 +47,35 @@
 {% endfor %}
 </div>
 <div id="all_index">
-    {% for index in full_index %}
-        <a href="/idoldb/all/?index={{ index }}">
-            {% if index == now_index %}
-                <div class="one_index_now">
-                    {{ index }}
-                </div>
-            {% else %}
-                <div class="one_index">
-                    {{ index }}
-                </div>
-            {% endif %}
-        </a>
-    {% endfor %}
+    {% if is_search %}
+        {% for index in full_index %}
+            <a href="/idoldb/all/?index={{ index }}&search={{ search_value }}">
+                {% if index == now_index %}
+                    <div class="one_index_now">
+                        {{ index }}
+                    </div>
+                {% else %}
+                    <div class="one_index">
+                        {{ index }}
+                    </div>
+                {% endif %}
+            </a>
+        {% endfor %}
+    {% else %}
+        {% for index in full_index %}
+            <a href="/idoldb/all/?index={{ index }}">
+                {% if index == now_index %}
+                    <div class="one_index_now">
+                        {{ index }}
+                    </div>
+                {% else %}
+                    <div class="one_index">
+                        {{ index }}
+                    </div>
+                {% endif %}
+            </a>
+        {% endfor %}
+    {% endif %}
 </div>
 
 </body>

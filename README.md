@@ -1,3 +1,3 @@
 # idolDB_Django
 
-ngdb.kr
+ngdb.kr/idoldb

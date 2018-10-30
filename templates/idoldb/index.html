@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
+    <link rel="shortcut icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
+
 </head>
 <body class="design1">
 <h1>아이돌마스터 DB</h1>
@@ -74,9 +77,17 @@
 <br>
 <br>
 <a id="go_allidol" href="/idoldb/all" class="btn">모든 아이돌 보기</a>
+<div id="search_div">
+    <input id="searchbar" type="text" placeholder="이름 검색" value="{{ search_value }}" onkeypress="if(event.keyCode===13) {location.href='/idoldb/search/'+this.value; return false;}"/>
+
+</div>
 <br><br>
+<h4>Alpha v10.29.2</h4>
+신데마스 캐릭터 지속적인 추가
+<h4>Alpha v10.29.1</h4>
+이름검색 지원, 코토리 파비콘 생성
 <h4>Alpha v10.10.1</h4>
-신데마스 쿨 추가
+신데마스 큐트 일부 추가, 레이아웃 일부 변경
 <h4>Alpha v10.05.2</h4>
 배포용 프로젝트 설정 완료, DEBUG = False
 <h4>Beta v10.05.1</h4>

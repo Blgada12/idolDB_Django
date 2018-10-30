@@ -80,23 +80,17 @@ def idol_main(req):
 
 
 def idol_all(req):
+    should_refresh = False
     # 인덱싱 기능
     index: str = req.GET.get('index')
     if index:
         req.session['index'] = index
-        return redirect(idol_all)
+        should_refresh = True
 
     if not req.session.get('index', False):
         req.session['index'] = 1
 
-    index: int = int(req.session['index'])-1
-
-
-    # 분류 직접박기
-    productions: str = req.GET.get('productions')
-    if productions:
-        req.session['productions'] = productions.split(',')
-        return redirect(idol_all)
+    index: int = int(req.session['index']) - 1
 
     # 분류 추가
     clicked: str = req.GET.get('clicked')
@@ -107,7 +101,7 @@ def idol_all(req):
         req.session['productions'] = pro_selected
         req.session['index'] = 1
 
-        return redirect(idol_all)
+        should_refresh = True
 
     # 분류 제외
     unclicked: str = req.GET.get('unclicked')
@@ -117,6 +111,9 @@ def idol_all(req):
         req.session['productions'] = pro_selected
         req.session['index'] = 1
 
+        should_refresh = True
+
+    if should_refresh:
         return redirect(idol_all)
 
     idols = Idol.objects.all()
@@ -145,8 +142,90 @@ def idol_all(req):
         result.extend(idols.filter(production=i))
 
     return render(req, 'idoldb/idol_all.html',
-                  {'idols': result[PAGE_INDEX*index:PAGE_INDEX*(index+1)], 'productions': pro_Objects, 'selected_pro': selected_pro,
-                   'full_index': range(1, int(math.ceil(len(result)/PAGE_INDEX))+1), 'now_index': index+1})
+                  {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
+                   'selected_pro': selected_pro,
+                   'full_index': range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1), 'now_index': index + 1})
+
+
+def idol_search(req, value=''):
+    if value == '':
+        return redirect(idol_all)
+    should_refresh = False
+    if req.session.get('last_search', False):
+        if req.session.get('last_search') == value:
+            pass
+        else:
+            req.session['index'] = 1
+    else:
+        req.session['index'] = 1
+    req.session['last_search'] = value
+    # 인덱싱 기능
+    index: str = req.GET.get('index')
+    if index:
+        req.session['index'] = index
+        should_refresh = True
+
+    if not req.session.get('index', False):
+        req.session['index'] = 1
+
+    index: int = int(req.session['index']) - 1
+
+    # 분류 추가
+    clicked: str = req.GET.get('clicked')
+    if clicked:
+        pro_selected: list = req.session.get('productions')
+        pro_selected.append(clicked)
+        pro_selected.sort()
+        req.session['productions'] = pro_selected
+        req.session['index'] = 1
+
+        should_refresh = True
+
+    # 분류 제외
+    unclicked: str = req.GET.get('unclicked')
+    if unclicked:
+        pro_selected: list = req.session.get('productions')
+        pro_selected.remove(unclicked)
+        req.session['productions'] = pro_selected
+        req.session['index'] = 1
+
+        should_refresh = True
+
+    # 전부 헤제되거나 처음접속이면 모두선택
+    productions: str = req.GET.get('production')
+    if productions:
+        req.session['productions'] = productions
+        should_refresh = True
+
+    if should_refresh:
+        return redirect(idol_search, value)
+
+    idols = Idol.objects.all()
+
+    idols = idols.filter(KoreanName__icontains=value)
+
+    pro_Objects = Production.objects.all()
+    result = list()
+
+    selected_pro = list()
+    if req.session.get('productions', False):
+        for i in req.session.get('productions'):
+            selected_pro.append(Production.objects.get(id=int(i)))
+    else:
+        tmp = list()
+        for i in pro_Objects:
+            tmp.append(str(i.id))
+            selected_pro.append(i)
+        req.session['productions'] = tmp
+
+    for i in selected_pro:
+        result.extend(idols.filter(production=i))
+
+    return render(req, 'idoldb/idol_search.html',
+                  {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
+                   'selected_pro': selected_pro,
+                   'full_index': range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1), 'now_index': index + 1,
+                   'search_value': value, 'is_none': len(result) == 0})
 
 
 def idol_detail(req, idol_id):
