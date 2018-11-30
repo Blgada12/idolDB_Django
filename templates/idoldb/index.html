@@ -1,25 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'idoldb/base.html' %}
+{% block content %}
 <head>
-    <meta charset="UTF-8">
     <title>오늘 생일인 아이돌</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
-    <link rel="shortcut icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
-    <link rel="icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
 
 </head>
 <body class="design1">
-<h1>아이돌마스터 DB</h1>
 <div class="pro_select">
 {% for pro in productions %}
     {% if pro in selected_pro %}
-        <a href="/idoldb/?unclicked={{ pro.id }}">
+        <a class="cardLink" href="{% url 'idolMain' %}?unclicked={{ pro.id }}">
             <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}" >
         </a>
     {% else %}
-        <a href="/idoldb/?clicked={{ pro.id }}">
+        <a class="cardLink" href="{% url 'idolMain' %}?clicked={{ pro.id }}">
             <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
         </a>
     {% endif %}
@@ -28,10 +21,10 @@
 <br>
 <h2>오늘 생일인 아이돌</h2>
 {% if isToday %}
-    <div class="cardGroup">
+    <div class="idolcardGroup">
     {% for idol in today %}
-        <a href="/idoldb/detail/{{ idol.id }}">
-        <div class="card" style="background-color: {{ idol.color }}">
+        <a class="cardLink" href="{% url 'idolDetail' idol.id %}">
+        <div class="idolcard" style="background-color: {{ idol.color }}">
                 <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
                 <div class="card_inside1">
                     <span class="card_name">{{ idol.KoreanName }}</span><br>
@@ -43,8 +36,8 @@
     {% endfor %}
     </div>
 {% else %}
-    <div class="cardGroup">
-        <div class="card" style="background-color: #c0c0c0">
+    <div class="idolcardGroup">
+        <div class="idolcard" style="background-color: #c0c0c0">
             {% load staticfiles %}
             <img class="profile_img" src="{% static 'idoldb/x_icon.png' %}" alt="">
             <div class="card_inside1">
@@ -59,10 +52,10 @@
 <br>
 <h2>다음 생일인 아이돌</h2>
 {% for idols in after %}
-    <div class="cardGroup">
+    <div class="idolcardGroup">
     {% for idol in idols %}
-        <a href="/idoldb/detail/{{ idol.id }}">
-            <div class="card" style="background-color: {{ idol.color }}">
+        <a class="cardLink" href="{% url 'idolDetail' idol.id %}">
+            <div class="idolcard" style="background-color: {{ idol.color }}">
                 <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
                 <div class="card_inside1">
                     <span class="card_name">{{ idol.KoreanName }}</span><br>
@@ -74,33 +67,35 @@
     {% endfor %}
     </div>
 {% endfor %}
-<br>
-<br>
-<a id="go_allidol" href="/idoldb/all" class="btn">모든 아이돌 보기</a>
-<div id="search_div">
-    <input id="searchbar" type="text" placeholder="이름 검색" value="{{ search_value }}" onkeypress="if(event.keyCode===13) {location.href='/idoldb/search/'+this.value; return false;}"/>
-
-</div>
-<br><br>
-<h4>Alpha v10.29.2</h4>
+<br><br><br><br>
+<h5>Alpha v11.28.1</h5>
+디자인 구현<br>
+로그인 관련 예외들 적용
+<h5>Alpha v11.26.1</h5>
+디자인 없는 방명록 구현<br>
+담당 아이돌 기능 추가
+<h5>Alpha v11.25.1</h5>
+방명록, 아이돌 댓글을 위한 계정 생성<br>
+주소 idoldb.ngdb.kr로 변경
+<h5>Alpha v10.29.2</h5>
 신데마스 캐릭터 지속적인 추가
-<h4>Alpha v10.29.1</h4>
+<h5>Alpha v10.29.1</h5>
 이름검색 지원, 코토리 파비콘 생성
-<h4>Alpha v10.10.1</h4>
+<h5>Alpha v10.10.1</h5>
 신데마스 큐트 일부 추가, 레이아웃 일부 변경
-<h4>Alpha v10.05.2</h4>
+<h5>Alpha v10.05.2</h5>
 배포용 프로젝트 설정 완료, DEBUG = False
-<h4>Beta v10.05.1</h4>
+<h5>Beta v10.05.1</h5>
 아이돌 전체 목록에 인덱싱 추가(최적화 차원)
-<h4>Beta v09.27.1</h4>
+<h5>Beta v09.27.1</h5>
 초기 서빙용 버전
 <br><br>
 본 프로젝트는<br>
-<a href="http://blgada12.tistory.com/category/PROJECT/아이돌DB%20-%20Django%20-%20ServerProgramming" target="_blank"><strong>티스토리 블로그</strong>에 개발 노트가 올라가며</a><br>
-<a href="https://github.com/Blgada12/idolDB_Django" target="_blank"><strong>Github</strong>에 소스를 공개한 프로젝트 입니다.</a><br>
+<a class="cardLink" href="https://blgada12.tistory.com/category/PROJECT/%EC%95%84%EC%9D%B4%EB%8F%8CDB" target="_blank"><strong>티스토리 블로그</strong>에 개발 노트가 올라가며</a><br>
+<a class="cardLink" href="https://github.com/Blgada12/idolDB_Django" target="_blank"><strong>Github</strong>에 소스를 공개한 프로젝트 입니다.</a><br>
 모든 사진의 저작권은 반다이 남코 엔터테이먼트에게 있습니다.<br>
 문의 : nonamep765@gmail.com
 
 
 </body>
-</html>
+{% endblock %}

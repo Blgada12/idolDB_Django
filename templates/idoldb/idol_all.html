@@ -1,82 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>아이돌 전체 목록</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-    {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
-    <link rel="shortcut icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
-    <link rel="icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
+{% extends 'idoldb/base.html' %}
+{% block content %}
+    <head>
+        <title>아이돌 전체 목록</title>
 
-</head>
-<body class="design1">
-<h2>모든 아이돌 목록</h2>
-<div class="pro_select">
-{% for pro in productions %}
-    {% if pro in selected_pro %}
-        <a href="/idoldb/all/?unclicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}" >
-        </a>
-    {% else %}
-        <a href="/idoldb/all/?clicked={{ pro.id }}">
-            <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
-        </a>
-    {% endif %}
-{% endfor %}
-</div>
-<br>
-    <input id="searchbar" type="text" placeholder="이름 검색" value="{{ search_value }}" onkeypress="if(event.keyCode===13) {location.href='/idoldb/search/'+this.value; return false;}"/>
-<div class="go_main">
-    <a href="/idoldb/" class="btn">메인 페이지 가기</a>
-</div>
+    </head>
+    <body class="design1">
 
-<br>
-<div class="cardGroup">
-{% for idol in idols %}
-    <a href="/idoldb/detail/{{ idol.id }}">
-        <div class="card" style="background-color: {{ idol.color }}">
-            <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
-            <div class="card_inside2">
-                <span class="card_name">{{ idol.KoreanName }}</span><br>
-                <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span>
-            </div>
-        </div>
-    </a>
-
-{% endfor %}
-</div>
-<div id="all_index">
-    {% if is_search %}
-        {% for index in full_index %}
-            <a href="/idoldb/all/?index={{ index }}&search={{ search_value }}">
-                {% if index == now_index %}
-                    <div class="one_index_now">
-                        {{ index }}
-                    </div>
-                {% else %}
-                    <div class="one_index">
-                        {{ index }}
-                    </div>
-                {% endif %}
-            </a>
+    <div class="pro_select">
+        {% for pro in productions %}
+            {% if pro in selected_pro %}
+                <a class="cardLink" href="{% url 'idolAll' %}?unclicked={{ pro.id }}">
+                    <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}">
+                </a>
+            {% else %}
+                <a class="cardLink" href="{% url 'idolAll' %}?clicked={{ pro.id }}">
+                    <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
+                </a>
+            {% endif %}
         {% endfor %}
-    {% else %}
-        {% for index in full_index %}
-            <a href="/idoldb/all/?index={{ index }}">
-                {% if index == now_index %}
-                    <div class="one_index_now">
-                        {{ index }}
+    </div>
+    <br>
+    <h2>모든 아이돌 목록</h2>
+    <br>
+    <div class="idolcardGroup">
+        {% for idol in idols %}
+            <a class="cardLink" href="{% url 'idolDetail' idol.id %}">
+                <div class="idolcard" style="background-color: {{ idol.color }}">
+                    <img class="profile_img" src="/static/{{ idol.mainPicture.name }}" alt="">
+                    <div class="card_inside2">
+                        <span class="card_name">{{ idol.KoreanName }}</span><br>
+                        <span class="card_japaneseName">{{ idol.KanjiName }}({{ idol.JapaneseName }})</span>
                     </div>
-                {% else %}
-                    <div class="one_index">
-                        {{ index }}
-                    </div>
-                {% endif %}
+                </div>
             </a>
-        {% endfor %}
-    {% endif %}
-</div>
 
-</body>
-</html>
+        {% endfor %}
+    </div>
+
+    <nav class="all_index" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+
+            {% if is_search %}
+                {% if canDown %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'idolAll' %}?index={{ canDown }}&search={{ search_value }}">Previous</a>
+                        {% else %}
+                    <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                {% endif %}
+                </li>
+                {% for index in full_index %}
+                    {% if index == now_index %}
+                        <li class="page-item active">
+                            {% else %}
+                        <li class="page-item">
+                    {% endif %}
+                <a class="page-link" href="{% url 'idolAll' %}?index={{ index }}&search={{ search_value }}">
+                    {{ index }}
+                </a>
+                </li>
+                {% endfor %}
+                {% if canUp %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'idolAll' %}?index={{ canUp }}&search={{ search_value }}">Next</a>
+                        {% else %}
+                    <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                {% endif %}
+                </li>
+            {% else %}
+                {% if canDown %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'idolAll' %}?index={{ canDown }}">Previous</a>
+                        {% else %}
+                    <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                {% endif %}
+                {% for index in full_index %}
+                    {% if index == now_index %}
+                        <li class="page-item active">
+                            {% else %}
+                        <li class="page-item">
+                    {% endif %}
+                <a class="page-link" href="{% url 'idolAll' %}?index={{ index }}">
+                    {{ index }}
+                </a>
+                </li>
+                {% endfor %}
+                {% if canUp %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'idolAll' %}?index={{ canUp }}">Next</a>
+                        {% else %}
+                    <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </nav>
+
+    </body>
+{% endblock %}

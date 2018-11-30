@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
+{% extends 'idoldb/base.html' %}
+{% block content %}
+    <head>
+        {% if idol %}
+            <title>{{ idol.KoreanName }}</title>
+        {% else %}
+            <title>찾을 수 없습니다.</title>
+        {% endif %}
+    </head>
+    <body class="design1">
     {% if idol %}
-    <title>{{ idol.KoreanName }}</title>
-    {% else %}
-    <title>찾을 수 없습니다.</title>
-    {% endif %}
-    {% load staticfiles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'idoldb/default.css' %}" />
-    <link rel="shortcut icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
-    <link rel="icon" href="{% static 'idoldb/favicon.ico' %}" type="image/x-icon">
-
-</head>
-<body style="margin-top: 30px">
-    {% if idol %}
-        <div class="cardGroup">
+        <div class="idolcardGroup">
             <div>
                 <img class="detail_img" src="/static/{{ idol.mainPicture.name }}" alt="">
             </div>
@@ -28,7 +21,7 @@
                     {{ idol.KanjiName }}({{ idol.JapaneseName }})
                 </div>
                 <div class="card_info">
-                    <table id="table_card" >
+                    <table id="table_card">
                         <tr>
                             <td class="tdTitle">
                                 나이
@@ -87,24 +80,24 @@
                             </td>
 
                             <td class="tdInfo2">
-                            {% if idol.hobby %}
-                                {{ idol.hobby }}
+                                {% if idol.hobby %}
+                                    {{ idol.hobby }}
                                 {% else %}
-                                비공개
+                                    비공개
                                 {% endif %}
                             </td>
 
                         </tr>
-                    {% if idol.bornPlace %}
-                        <tr>
-                            <td>
-                                출신지
-                            </td>
-                            <td class="tdInfo">
-                                {{ idol.bornPlace }}
-                            </td>
-                        </tr>
-                    {% endif %}
+                        {% if idol.bornPlace %}
+                            <tr>
+                                <td>
+                                    출신지
+                                </td>
+                                <td class="tdInfo">
+                                    {{ idol.bornPlace }}
+                                </td>
+                            </tr>
+                        {% endif %}
                         <tr>
                             <td>
                                 성우
@@ -121,16 +114,31 @@
                                 <img class="pro_img" src="/static/{{ idol.production.logo.name }}" alt="">
                             </td>
                         </tr>
-                    {% if idol.signPicture %}
-                        <tr>
-                            <td>
-                                사인
-                            </td>
-                            <td class="tdInfo3">
-                                <img class="sign_img" src="/static/{{ idol.signPicture.name }}" alt="">
-                            </td>
-                        </tr>
-                    {% endif %}
+                        {% if idol.signPicture %}
+                            <tr>
+                                <td>
+                                    사인
+                                </td>
+                                <td class="tdInfo3">
+                                    <img class="sign_img" src="/static/{{ idol.signPicture.name }}" alt="">
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if isLogin %}
+                            {% if user.myIdol.id != idol.id %}
+                                <tr>
+                                    <td>
+                                        담당 아이돌
+                                    </td>
+                                    <td class="tdInfo3">
+                                        <form action="/detail/{{ idol.id }}" accept-charset="utf-8" name="detail"
+                                              method="post"> {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-success">지정하기</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endif %}
                     </table>
 
                 </div>
@@ -141,13 +149,7 @@
     {% else %}
         <div>다시 시도해주세요</div>
     {% endif %}
-    <div class="go_main">
-<br>
-<br>
-        <a href="/idoldb/" class="btn">메인 페이지 가기</a><br>
-        <br>
-        <a href="/idoldb/all" class="btn">모든 아이돌 보기</a>
-    </div>
 
-</body>
-</html>
+
+    </body>
+{% endblock %}
