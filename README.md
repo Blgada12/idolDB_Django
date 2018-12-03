@@ -107,9 +107,9 @@ settings_deploy.json<br><br><code>{
       서빙용 호스트
     ]
   }
-}
-</code>
-</pre>5. 마이그레이션 등등 설정...<br><br>
+}</code></pre>
+
+5. 마이그레이션 등등 설정...<br><br>
 6. 디버깅용 옵션 --settings=ngdb.settings.debug <br>
 실서비스용 옵션 --settings=ngdb.settings.deploy
 <br><br>
