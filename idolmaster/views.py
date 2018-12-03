@@ -698,21 +698,26 @@ class IdolViewSet(viewsets.ModelViewSet):
 
     def list(self, req, *args, **kwargs):
         queryset = self.get_queryset()
-        Qs = Q(Q(KoreanName__contains=req.GET.get('korean_name') if req.GET.get('korean_name') else '') \
-               & Q(JapaneseName__contains=req.GET.get('japanese_name') if req.GET.get('japanese_name') else '') \
-               & Q(KanjiName__contains=req.GET.get('kanji_name') if req.GET.get('kanji_name') else '')
-               )
+        if req.GET.get('id'):
+            result = queryset.filter(id=req.GET.get('id'))
+        else:
+            Qs = Q(Q(KoreanName__contains=req.GET.get('korean_name') if req.GET.get('korean_name') else '') \
+                   & Q(JapaneseName__contains=req.GET.get('japanese_name') if req.GET.get('japanese_name') else '') \
+                   & Q(KanjiName__contains=req.GET.get('kanji_name') if req.GET.get('kanji_name') else '')
+                   )
 
-        if req.GET.get('productions'):
-            po = Production.objects
-            Qp = Q()
-            for i in req.GET.get('productions').split(','):
-                now_production = po.get(id=i)
-                Qp |= Q(production=now_production)
-            Qs &= Qp
+            if req.GET.get('productions'):
+                po = Production.objects
+                Qp = Q()
+                for i in req.GET.get('productions').split(','):
+                    now_production = po.get(id=i)
+                    Qp |= Q(production=now_production)
+                Qs &= Qp
+
+            result=queryset.filter(Qs)
 
         paginator = PageNumberPagination()
 
-        serializer = IdolSerializer(paginator.paginate_queryset(queryset.filter(Qs), req), many=True)
+        serializer = IdolSerializer(paginator.paginate_queryset(result, req), many=True)
 
         return paginator.get_paginated_response(serializer.data)
