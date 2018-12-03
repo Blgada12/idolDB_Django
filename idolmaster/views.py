@@ -6,313 +6,325 @@ from django.core.mail import EmailMessage
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.db.models import Q
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
 
 from .models import Idol, Production, Account, CameLog
 from .util import get_token, get_sha512
 from .utils import get_idol_byId
 
+from rest_framework import generics, viewsets, permissions
+from .serializers import IdolSerializer
+from rest_framework.decorators import action
+
+from django.views import View
+
 AFTER_INDEX = 3
 PAGE_INDEX = 14
 
 
-def idol_main(req):
-    productions: str = req.GET.get('productions')
-    if productions:
-        req.session['productions'] = productions.split(',')
-        return redirect(idol_main)
+class idolMain(View):
+    def get(self, req):
+        productions: str = req.GET.get('productions')
+        if productions:
+            req.session['productions'] = productions.split(',')
+            return redirect(self.as_view())
 
-    clicked: str = req.GET.get('clicked')
-    if clicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.append(clicked)
-        pro_selected.sort()
-        req.session['productions'] = pro_selected
+        clicked: str = req.GET.get('clicked')
+        if clicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.append(clicked)
+            pro_selected.sort()
+            req.session['productions'] = pro_selected
 
-        return redirect(idol_main)
+            return redirect('idolMain')
 
-    unclicked: str = req.GET.get('unclicked')
-    if unclicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.remove(unclicked)
-        req.session['productions'] = pro_selected
+        unclicked: str = req.GET.get('unclicked')
+        if unclicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.remove(unclicked)
+            req.session['productions'] = pro_selected
 
-        return redirect(idol_main)
+            return redirect('idolMain')
 
-    pro_Objects = Production.objects.all()
-    selected_pro = list()
-    if req.session.get('productions', False):
-        for i in req.session.get('productions'):
-            selected_pro.append(Production.objects.get(id=int(i)))
-    else:
-        tmp = list()
-        for i in pro_Objects:
-            tmp.append(str(i.id))
-            selected_pro.append(i)
-        req.session['productions'] = tmp
+        pro_Objects = Production.objects.all()
+        selected_pro = list()
+        if req.session.get('productions', False):
+            for i in req.session.get('productions'):
+                selected_pro.append(Production.objects.get(id=int(i)))
+        else:
+            tmp = list()
+            for i in pro_Objects:
+                tmp.append(str(i.id))
+                selected_pro.append(i)
+            req.session['productions'] = tmp
 
-    idols = Idol.objects.all().filter(production=selected_pro[0])
+        idols = Idol.objects.all().filter(production=selected_pro[0])
 
-    for i in range(1, len(selected_pro)):
-        idols = idols | Idol.objects.all().filter(production=selected_pro[i])
+        for i in range(1, len(selected_pro)):
+            idols = idols | Idol.objects.all().filter(production=selected_pro[i])
 
-    today_time = timezone.now()
-    today_idols = idols.filter(birth=today_time)
+        today_time = timezone.now()
+        today_idols = idols.filter(birth=today_time)
 
-    before_idols = idols.filter(birth__lt=today_time)
-    for idol in before_idols:
-        idol.birth = idol.birth.replace(today_time.year + 1, idol.birth.month, idol.birth.day)
-        idol.save()
+        before_idols = idols.filter(birth__lt=today_time)
+        for idol in before_idols:
+            idol.birth = idol.birth.replace(today_time.year + 1, idol.birth.month, idol.birth.day)
+            idol.save()
 
-    after_idols = idols.filter(birth__gt=today_time).order_by('birth')
+        after_idols = idols.filter(birth__gt=today_time).order_by('birth')
 
-    after_date = list()
-    for idol in after_idols:
-        isIn = False
-        for i in after_date:
-            if i == (idol.birth.month, idol.birth.day):
-                isIn = True
+        after_date = list()
+        for idol in after_idols:
+            isIn = False
+            for i in after_date:
+                if i == (idol.birth.month, idol.birth.day):
+                    isIn = True
+                    break
+            if not isIn:
+                after_date.append((idol.birth.month, idol.birth.day))
+            if AFTER_INDEX == len(after_date):
                 break
-        if not isIn:
-            after_date.append((idol.birth.month, idol.birth.day))
-        if AFTER_INDEX == len(after_date):
-            break
 
-    after_idols_result = list()
-    rDict = {'today': today_idols, 'isToday': True if
-    len(today_idols) > 0 else False, 'after': after_idols_result, 'productions': pro_Objects,
-             'selected_pro': selected_pro}
-    if not req.session.get('isLogin', False):
-        req.session['isLogin'] = False
-    if req.session['isLogin']:
-        token = req.session['token']
-        rDict['token'] = token
+        after_idols_result = list()
+        rDict = {'today': today_idols, 'isToday': True if
+        len(today_idols) > 0 else False, 'after': after_idols_result, 'productions': pro_Objects,
+                 'selected_pro': selected_pro}
+        if not req.session.get('isLogin', False):
+            req.session['isLogin'] = False
+        if req.session['isLogin']:
+            token = req.session['token']
+            rDict['token'] = token
 
-        o = Account.objects
-        if o.filter(token=token).exists():
-            rDict['user'] = o.get(token=token)
+            o = Account.objects
+            if o.filter(token=token).exists():
+                rDict['user'] = o.get(token=token)
+            else:
+                req.session['isLogin'] = False
+
+        rDict['isLogin'] = req.session['isLogin']
+        rDict['now'] = 'main'
+        for i in after_date:
+            after_idols_result.append(idols.filter(birth__day=i[1], birth__month=i[0]))
+        return render(req, 'idoldb/index.html', rDict)
+
+
+class idolAll(View):
+    def get(self, req):
+        should_refresh = False
+        # 인덱싱 기능
+        index: str = req.GET.get('index')
+        if index:
+            req.session['index'] = index
+            should_refresh = True
+
+        if not req.session.get('index', False):
+            req.session['index'] = 1
+
+        index: int = int(req.session['index']) - 1
+
+        # 분류 추가
+        clicked: str = req.GET.get('clicked')
+        if clicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.append(clicked)
+            pro_selected.sort()
+            req.session['productions'] = pro_selected
+            req.session['index'] = 1
+
+            should_refresh = True
+
+        # 분류 제외
+        unclicked: str = req.GET.get('unclicked')
+        if unclicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.remove(unclicked)
+            req.session['productions'] = pro_selected
+            req.session['index'] = 1
+
+            should_refresh = True
+
+        if should_refresh:
+            return redirect('idolAll')
+
+        idols = Idol.objects.all()
+
+        # 전부 헤제되거나 처음접속이면 모두선택
+        productions: str = req.GET.get('production')
+        if productions:
+            req.session['productions'] = productions
+            return redirect('idolAll')
+
+        pro_Objects = Production.objects.all()
+        result = list()
+
+        selected_pro = list()
+        if req.session.get('productions', False):
+            for i in req.session.get('productions'):
+                selected_pro.append(Production.objects.get(id=int(i)))
         else:
+            tmp = list()
+            for i in pro_Objects:
+                tmp.append(str(i.id))
+                selected_pro.append(i)
+            req.session['productions'] = tmp
+
+        for i in selected_pro:
+            result.extend(idols.filter(production=i))
+
+        if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
 
-    rDict['isLogin'] = req.session['isLogin']
-    rDict['now'] = 'main'
-    for i in after_date:
-        after_idols_result.append(idols.filter(birth__day=i[1], birth__month=i[0]))
-    return render(req, 'idoldb/index.html', rDict)
+        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
+                 'selected_pro': selected_pro, 'now_index': index + 1}
 
-
-def idol_all(req):
-    should_refresh = False
-    # 인덱싱 기능
-    index: str = req.GET.get('index')
-    if index:
-        req.session['index'] = index
-        should_refresh = True
-
-    if not req.session.get('index', False):
-        req.session['index'] = 1
-
-    index: int = int(req.session['index']) - 1
-
-    # 분류 추가
-    clicked: str = req.GET.get('clicked')
-    if clicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.append(clicked)
-        pro_selected.sort()
-        req.session['productions'] = pro_selected
-        req.session['index'] = 1
-
-        should_refresh = True
-
-    # 분류 제외
-    unclicked: str = req.GET.get('unclicked')
-    if unclicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.remove(unclicked)
-        req.session['productions'] = pro_selected
-        req.session['index'] = 1
-
-        should_refresh = True
-
-    if should_refresh:
-        return redirect(idol_all)
-
-    idols = Idol.objects.all()
-
-    # 전부 헤제되거나 처음접속이면 모두선택
-    productions: str = req.GET.get('production')
-    if productions:
-        req.session['productions'] = productions
-        return redirect(idol_all)
-
-    pro_Objects = Production.objects.all()
-    result = list()
-
-    selected_pro = list()
-    if req.session.get('productions', False):
-        for i in req.session.get('productions'):
-            selected_pro.append(Production.objects.get(id=int(i)))
-    else:
-        tmp = list()
-        for i in pro_Objects:
-            tmp.append(str(i.id))
-            selected_pro.append(i)
-        req.session['productions'] = tmp
-
-    for i in selected_pro:
-        result.extend(idols.filter(production=i))
-
-    if not req.session.get('isLogin', False):
-        req.session['isLogin'] = False
-
-    rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
-             'selected_pro': selected_pro, 'now_index': index + 1}
-
-    if index > 0:
-        rDict['canDown'] = index
-    else:
-        rDict['canDown'] = None
-    if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
-        rDict['canUp'] = index + 2
-    else:
-        rDict['canUp'] = None
-    rindex = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
-    rindex.sort()
-    rDict['full_index'] = rindex
-    if not req.session.get('isLogin', False):
-        req.session['isLogin'] = False
-    if req.session['isLogin']:
-        token = req.session['token']
-        rDict['token'] = token
-
-        o = Account.objects
-        if o.filter(token=token).exists():
-            rDict['user'] = o.get(token=token)
+        if index > 0:
+            rDict['canDown'] = index
         else:
+            rDict['canDown'] = None
+        if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
+            rDict['canUp'] = index + 2
+        else:
+            rDict['canUp'] = None
+        rindex = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
+        rindex.sort()
+        rDict['full_index'] = rindex
+        if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
+        if req.session['isLogin']:
+            token = req.session['token']
+            rDict['token'] = token
 
-    rDict['isLogin'] = req.session['isLogin']
-    rDict['now'] = 'all'
+            o = Account.objects
+            if o.filter(token=token).exists():
+                rDict['user'] = o.get(token=token)
+            else:
+                req.session['isLogin'] = False
 
-    return render(req, 'idoldb/idol_all.html', rDict)
+        rDict['isLogin'] = req.session['isLogin']
+        rDict['now'] = 'all'
+
+        return render(req, 'idoldb/idol_all.html', rDict)
 
 
-def idol_search(req, value=''):
-    if value == '':
-        return redirect(idol_all)
-    should_refresh = False
-    if req.session.get('last_search', False):
-        if not req.session.get('last_search') == value:
+class idolSearch(View):
+    def get(self, req, value=''):
+        if value == '':
+            return redirect('idolAll')
+        should_refresh = False
+        if req.session.get('last_search', False):
+            if not req.session.get('last_search') == value:
+                req.session['index_search'] = 1
+                should_refresh = True
+        else:
             req.session['index_search'] = 1
             should_refresh = True
-    else:
-        req.session['index_search'] = 1
-        should_refresh = True
-    req.session['last_search'] = value
-    # 인덱싱 기능
-    index: str = req.GET.get('index')
-    if index:
-        req.session['index_search'] = index
-        should_refresh = True
+        req.session['last_search'] = value
+        # 인덱싱 기능
+        index: str = req.GET.get('index')
+        if index:
+            req.session['index_search'] = index
+            should_refresh = True
 
-    if not req.session.get('index_search', False):
-        req.session['index_search'] = 1
-        should_refresh = True
+        if not req.session.get('index_search', False):
+            req.session['index_search'] = 1
+            should_refresh = True
 
-    index: int = int(req.session['index_search']) - 1
+        index: int = int(req.session['index_search']) - 1
 
-    # 분류 추가
-    clicked: str = req.GET.get('clicked_search')
-    if clicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.append(clicked)
-        pro_selected.sort()
-        req.session['productions'] = pro_selected
-        req.session['index_search'] = 1
+        # 분류 추가
+        clicked: str = req.GET.get('clicked_search')
+        if clicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.append(clicked)
+            pro_selected.sort()
+            req.session['productions'] = pro_selected
+            req.session['index_search'] = 1
 
-        should_refresh = True
+            should_refresh = True
 
-    # 분류 제외
-    unclicked: str = req.GET.get('unclicked')
-    if unclicked:
-        pro_selected: list = req.session.get('productions')
-        pro_selected.remove(unclicked)
-        req.session['productions'] = pro_selected
-        req.session['index_search'] = 1
+        # 분류 제외
+        unclicked: str = req.GET.get('unclicked')
+        if unclicked:
+            pro_selected: list = req.session.get('productions')
+            pro_selected.remove(unclicked)
+            req.session['productions'] = pro_selected
+            req.session['index_search'] = 1
 
-        should_refresh = True
+            should_refresh = True
 
-    # 전부 헤제되거나 처음접속이면 모두선택
-    productions: str = req.GET.get('production')
-    if productions:
-        req.session['productions'] = productions
-        should_refresh = True
+        # 전부 헤제되거나 처음접속이면 모두선택
+        productions: str = req.GET.get('production')
+        if productions:
+            req.session['productions'] = productions
+            should_refresh = True
 
-    if should_refresh:
-        return redirect(idol_search, value)
+        if should_refresh:
+            return redirect('idolSearch', value)
 
-    idols = Idol.objects.all()
+        idols = Idol.objects.all()
 
-    idols = idols.filter(KoreanName__icontains=value)
+        idols = idols.filter(KoreanName__icontains=value)
 
-    pro_Objects = Production.objects.all()
-    result = list()
+        pro_Objects = Production.objects.all()
+        result = list()
 
-    selected_pro = list()
-    if req.session.get('productions', False):
-        for i in req.session.get('productions'):
-            selected_pro.append(Production.objects.get(id=int(i)))
-    else:
-        tmp = list()
-        for i in pro_Objects:
-            tmp.append(str(i.id))
-            selected_pro.append(i)
-        req.session['productions'] = tmp
-
-    for i in selected_pro:
-        result.extend(idols.filter(production=i))
-
-    if not index in range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1):
-        req.session['index_search'] = 1
-        index = 0
-
-    rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
-             'selected_pro': selected_pro, 'now_index': index + 1,
-             'search_value': value, 'is_none': len(result) == 0}
-
-    if index > 0:
-        rDict['canDown'] = index
-    else:
-        rDict['canDown'] = None
-    if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
-        rDict['canUp'] = index + 2
-    else:
-        rDict['canUp'] = None
-    rindex = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
-    rindex.sort()
-
-    rDict['full_index'] = rindex
-
-    if not req.session.get('isLogin', False):
-        req.session['isLogin'] = False
-    if req.session['isLogin']:
-        token = req.session['token']
-        rDict['token'] = token
-
-        o = Account.objects
-        if o.filter(token=token).exists():
-            rDict['user'] = o.get(token=token)
+        selected_pro = list()
+        if req.session.get('productions', False):
+            for i in req.session.get('productions'):
+                selected_pro.append(Production.objects.get(id=int(i)))
         else:
+            tmp = list()
+            for i in pro_Objects:
+                tmp.append(str(i.id))
+                selected_pro.append(i)
+            req.session['productions'] = tmp
+
+        for i in selected_pro:
+            result.extend(idols.filter(production=i))
+
+        if not index in range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1):
+            req.session['index_search'] = 1
+            index = 0
+
+        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
+                 'selected_pro': selected_pro, 'now_index': index + 1,
+                 'search_value': value, 'is_none': len(result) == 0}
+
+        if index > 0:
+            rDict['canDown'] = index
+        else:
+            rDict['canDown'] = None
+        if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
+            rDict['canUp'] = index + 2
+        else:
+            rDict['canUp'] = None
+        rindex = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
+        rindex.sort()
+
+        rDict['full_index'] = rindex
+
+        if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
+        if req.session['isLogin']:
+            token = req.session['token']
+            rDict['token'] = token
 
-    rDict['isLogin'] = req.session['isLogin']
-    rDict['now'] = 'search'
+            o = Account.objects
+            if o.filter(token=token).exists():
+                rDict['user'] = o.get(token=token)
+            else:
+                req.session['isLogin'] = False
 
-    return render(req, 'idoldb/idol_search.html', rDict)
+        rDict['isLogin'] = req.session['isLogin']
+        rDict['now'] = 'search'
+
+        return render(req, 'idoldb/idol_search.html', rDict)
 
 
-def idol_detail(req, idol_id):
-    if req.method == 'GET':
+class idolDetail(View):
+    def get(self, req, idol_id):
         idol = get_idol_byId(idol_id)
         rDict = {'idol': idol}
         if not req.session.get('isLogin', False):
@@ -330,7 +342,8 @@ def idol_detail(req, idol_id):
         rDict['isLogin'] = req.session['isLogin']
         rDict['now'] = 'detail'
         return render(req, 'idoldb/idol_detail.html', rDict)
-    if req.method == 'POST':
+
+    def post(self, req, idol_id):
         idol = get_idol_byId(idol_id)
         rDict = {'idol': idol}
         if not req.session.get('isLogin', False):
@@ -354,21 +367,19 @@ def idol_detail(req, idol_id):
         return render(req, 'idoldb/idol_detail.html', rDict)
 
 
-# 아래부터 계정관리
-
-def register(req):
-    if req.method == 'GET':
+class register(View):
+    def get(self, req):
         rDict = dict()
         rDict['now'] = 'signup'
         if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
         if req.session['isLogin']:
-            return redirect(idol_main)
+            return redirect('idolMain')
         rDict['isLogin'] = req.session['isLogin']
 
         return render(req, 'idoldb/signup.html', rDict)
 
-    if req.method == 'POST':
+    def post(self, req):
         uid = uuid.uuid4()
 
         # 정보 받아오기
@@ -424,13 +435,13 @@ def register(req):
         if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
         if req.session['isLogin']:
-            return redirect(idol_main)
+            return redirect('idolMain')
         rDict['isLogin'] = req.session['isLogin']
         return render(req, 'idoldb/signup.html', rDict)
 
 
-def email_activate(req, uid, token):
-    if req.method == 'GET':
+class emailActivate(View):
+    def get(self, req, uid, token):
         rDict = dict()
         if not Account.objects.filter(id=int(uid)).exists():
             # 왜 없는 계정을 인증하려고 하시죠?
@@ -474,25 +485,26 @@ def email_activate(req, uid, token):
         return render(req, 'idoldb/logpage.html', rDict)
 
 
-def logout(req):
-    req.session['isLogin'] = False
+class logout(View):
+    def get(self, req):
+        req.session['isLogin'] = False
 
-    return redirect(idol_main)
+        return redirect('idolMain')
 
 
-def login(req):
-    if req.method == 'GET':
+class login(View):
+    def get(self, req):
         rDict = dict()
         rDict['now'] = 'login'
         if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
         if req.session['isLogin']:
-            return redirect(idol_main)
+            return redirect('idolMain')
         rDict['isLogin'] = req.session['isLogin']
 
         return render(req, 'idoldb/login.html', rDict)
 
-    if req.method == 'POST':
+    def post(self, req):
         req_data = req.POST
         ob = Account.objects
         if not ob.filter(email=req_data['email']).exists():
@@ -501,7 +513,7 @@ def login(req):
             if not req.session.get('isLogin', False):
                 req.session['isLogin'] = False
             if req.session['isLogin']:
-                return redirect(idol_main)
+                return redirect('idolMain')
             rDict['isLogin'] = req.session['isLogin']
             rDict['error'] = "아이디, 비밀번호가 다름"
 
@@ -514,7 +526,7 @@ def login(req):
             if not req.session.get('isLogin', False):
                 req.session['isLogin'] = False
             if req.session['isLogin']:
-                return redirect(idol_main)
+                return redirect('idolMain')
             rDict['isLogin'] = req.session['isLogin']
             rDict['error'] = "아이디, 비밀번호가 다름"
 
@@ -526,7 +538,7 @@ def login(req):
             if not req.session.get('isLogin', False):
                 req.session['isLogin'] = False
             if req.session['isLogin']:
-                return redirect(idol_main)
+                return redirect('idolMain')
             rDict['isLogin'] = req.session['isLogin']
             rDict['error'] = "메일 인증을 받아주세요."
 
@@ -538,12 +550,66 @@ def login(req):
 
         req.session['isLogin'] = True
         req.session['token'] = account.token
-        return redirect(idol_main)
+        return redirect('idolMain')
 
 
-def cameLog(req):
-    rDict = dict()
-    if req.method == 'POST':
+class cameLog(View):
+    def get(self, req):
+        rDict = dict()
+        should_refresh = False
+        # 인덱싱 기능
+        index: str = req.GET.get('index')
+        if index:
+            req.session['index_log'] = index
+            should_refresh = True
+
+        if not req.session.get('index_log', False):
+            req.session['index_log'] = 1
+            should_refresh = True
+
+        if should_refresh:
+            return redirect(cameLog)
+
+        index: int = int(req.session['index_log']) - 1
+
+        if not req.session.get('isLogin', False):
+            req.session['isLogin'] = False
+        if req.session['isLogin']:
+            token = req.session['token']
+            rDict['token'] = token
+
+            o = Account.objects
+            if o.filter(token=token).exists():
+                rDict['user'] = o.get(token=token)
+            else:
+                req.session['isLogin'] = False
+
+        result = CameLog.objects.order_by('-date')
+
+        if not index in range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1):
+            req.session['index_search'] = 1
+            index = 0
+
+        if index > 0:
+            rDict['canDown'] = index
+        else:
+            rDict['canDown'] = None
+        if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
+            rDict['canUp'] = index + 2
+        else:
+            rDict['canUp'] = None
+        rindex = list(
+            set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
+        rindex.sort()
+        rDict['full_index'] = rindex
+
+        rDict['isLogin'] = req.session['isLogin']
+        rDict['now'] = 'camelog'
+        rDict['camelogs'] = result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)]
+        return render(req, 'idoldb/camelog.html', rDict)
+
+    def post(self, req):
+        rDict = dict()
         req_data = req.POST
         o = Account.objects
         oc = CameLog.objects
@@ -557,7 +623,8 @@ def cameLog(req):
                 today_end = datetime.combine(tomorrow, time())
 
                 account = o.get(token=req.session['token'])
-                if oc.filter(user=account).order_by('-date').filter(date__gte=today_start).filter(date__lt=today_end).exists():
+                if oc.filter(user=account).order_by('-date').filter(date__gte=today_start).filter(
+                        date__lt=today_end).exists():
                     rDict['error'] = "이미 오늘 작성했습니다."
                 else:
                     if not 1 <= len(req_data['title']) <= 20:
@@ -568,58 +635,84 @@ def cameLog(req):
                         rDict['error'] = "작성되었습니다!"
             else:
                 req.sesstion['isLogin'] = False
-                return redirect(idol_main)
+                return redirect('idolMain')
         else:
-            return redirect(idol_main)
+            return redirect('idolMain')
+        should_refresh = False
+        # 인덱싱 기능
+        index: str = req.GET.get('index')
+        if index:
+            req.session['index_log'] = index
+            should_refresh = True
 
-    should_refresh = False
-    # 인덱싱 기능
-    index: str = req.GET.get('index')
-    if index:
-        req.session['index_log'] = index
-        should_refresh = True
+        if not req.session.get('index_log', False):
+            req.session['index_log'] = 1
+            should_refresh = True
 
-    if not req.session.get('index_log', False):
-        req.session['index_log'] = 1
-        should_refresh = True
+        if should_refresh:
+            return redirect(cameLog)
 
-    if should_refresh:
-        return redirect(cameLog)
+        index: int = int(req.session['index_log']) - 1
 
-    index: int = int(req.session['index_log']) - 1
-
-    if not req.session.get('isLogin', False):
-        req.session['isLogin'] = False
-    if req.session['isLogin']:
-        token = req.session['token']
-        rDict['token'] = token
-
-        o = Account.objects
-        if o.filter(token=token).exists():
-            rDict['user'] = o.get(token=token)
-        else:
+        if not req.session.get('isLogin', False):
             req.session['isLogin'] = False
+        if req.session['isLogin']:
+            token = req.session['token']
+            rDict['token'] = token
 
-    result = CameLog.objects.order_by('-date')
+            o = Account.objects
+            if o.filter(token=token).exists():
+                rDict['user'] = o.get(token=token)
+            else:
+                req.session['isLogin'] = False
 
-    if not index in range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1):
-        req.session['index_search'] = 1
-        index = 0
+        result = CameLog.objects.order_by('-date')
 
-    if index > 0:
-        rDict['canDown'] = index
-    else:
-        rDict['canDown'] = None
-    if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
-        rDict['canUp'] = index + 2
-    else:
-        rDict['canUp'] = None
-    rindex = list(
-        set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
-    rindex.sort()
-    rDict['full_index'] = rindex
+        if not index in range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1):
+            req.session['index_search'] = 1
+            index = 0
 
-    rDict['isLogin'] = req.session['isLogin']
-    rDict['now'] = 'camelog'
-    rDict['camelogs'] = result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)]
-    return render(req, 'idoldb/camelog.html', rDict)
+        if index > 0:
+            rDict['canDown'] = index
+        else:
+            rDict['canDown'] = None
+        if index + 2 < int(math.ceil(len(result) / PAGE_INDEX)) + 1:
+            rDict['canUp'] = index + 2
+        else:
+            rDict['canUp'] = None
+        rindex = list(
+            set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
+        rindex.sort()
+        rDict['full_index'] = rindex
+
+        rDict['isLogin'] = req.session['isLogin']
+        rDict['now'] = 'camelog'
+        rDict['camelogs'] = result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)]
+        return render(req, 'idoldb/camelog.html', rDict)
+
+
+class IdolViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    queryset = Idol.objects.all()
+    serializer_class = IdolSerializer
+
+    def list(self, req, *args, **kwargs):
+        queryset = self.get_queryset()
+        Qs = Q(Q(KoreanName__contains=req.GET.get('korean_name') if req.GET.get('korean_name') else '') \
+               & Q(JapaneseName__contains=req.GET.get('japanese_name') if req.GET.get('japanese_name') else '') \
+               & Q(KanjiName__contains=req.GET.get('kanji_name') if req.GET.get('kanji_name') else '')
+               )
+
+        if req.GET.get('productions'):
+            po = Production.objects
+            Qp = Q()
+            for i in req.GET.get('productions').split(','):
+                now_production = po.get(id=i)
+                Qp |= Q(production=now_production)
+            Qs &= Qp
+
+        paginator = PageNumberPagination()
+
+        serializer = IdolSerializer(paginator.paginate_queryset(queryset.filter(Qs), req), many=True)
+
+        return paginator.get_paginated_response(serializer.data)
