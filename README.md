@@ -48,7 +48,16 @@ response:
 method: GET<br>
 parameter:<br><br>
 id검색을 진행하면 id 파라메터만 적용됩니다.<br><br>
-id="" //id 검색(반환값 무조건 1개)<br>
+id="" //id 검색(반환값 무조건 1개)<br><br>
+response:
+<pre>
+{
+    "count": 3, // 검색된 아이돌 수
+    "next": "http://idoldb.ngdb.kr/api/idols/?page=2", //다음페이지
+    "previous": null, //이전페이지
+    "results": [ ] // 검색된 아이돌들 
+}
+</pre>
 <br>
 <hr><br>
 id검색을 진행하지 않으면 아래 파라메터는 중복이 가능합니다!
@@ -61,8 +70,7 @@ produntions="" //소속(ex. 따음표없이 '1,2,3' 넣으면 나옴)<br>
 2: 961프로덕션<br>
 3: 샤니마스<br>
 4: 밀리마스<br>
-5: 신데마스(추가중)
-
+5: 신데마스(추가중)<br><br>
 response:
 <pre>
 {
