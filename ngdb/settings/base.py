@@ -32,10 +32,13 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'idolmaster',
+    'users',
 
     'rest_framework',
     'rest_framework_swagger',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

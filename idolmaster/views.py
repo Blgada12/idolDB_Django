@@ -1,24 +1,21 @@
 import math
-from datetime import datetime, timedelta, time
 import uuid
+from datetime import datetime, timedelta, time
 
 from django.core.mail import EmailMessage
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.db.models import Q
+from django.views import View
+from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
 
-from .models import Idol, Production, Account, CameLog
+from .models import Idol, Production
+from users.models import User, CameLog
+from .serializers import IdolSerializer
 from .util import get_token, get_sha512
 from .utils import get_idol_byId
-
-from rest_framework import generics, viewsets, permissions
-from .serializers import IdolSerializer
-from rest_framework.decorators import action
-
-from django.views import View
 
 AFTER_INDEX = 3
 PAGE_INDEX = 14
@@ -29,7 +26,7 @@ class idolMain(View):
         productions: str = req.GET.get('productions')
         if productions:
             req.session['productions'] = productions.split(',')
-            return redirect(self.as_view())
+            return redirect('idolMain')
 
         clicked: str = req.GET.get('clicked')
         if clicked:
@@ -97,7 +94,7 @@ class idolMain(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -196,7 +193,7 @@ class idolAll(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -311,7 +308,7 @@ class idolSearch(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -333,7 +330,7 @@ class idolDetail(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -352,7 +349,7 @@ class idolDetail(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 user = o.get(token=token)
                 user.myIdol = idol
@@ -386,7 +383,7 @@ class register(View):
         req_data = req.POST
 
         # 계정 객체
-        ob = Account.objects
+        ob = User.objects
         rDict = dict()
 
         # 생성 가능한지 확인
@@ -408,27 +405,27 @@ class register(View):
                         else:
                             rDict['error'] = "메일을 확인해주세요."
                             # req로 계정 생성
-                            account = ob.create(email=req_data['email'],
+                            User = ob.create(email=req_data['email'],
                                                 nickname=req_data['nickname'])
 
                             # sha512로 비밀번호
-                            account.password = uid.__str__() + ":" + get_sha512(uid.__str__() + req_data['password'])
+                            User.password = uid.__str__() + ":" + get_sha512(uid.__str__() + req_data['password'])
 
                             # 토큰 생성
-                            account.token = get_token(uid.urn.__str__())
+                            User.token = get_token(uid.urn.__str__())
 
                             # 저장
-                            account.save()
+                            User.save()
 
                             # 이메일용 템플릿 갖고오기
                             message = render_to_string('idoldb/activate_email.html', {
-                                'user': account.nickname,
-                                'uid': account.id,
-                                'token': account.token
+                                'user': User.nickname,
+                                'uid': User.id,
+                                'token': User.token
                             })
 
                             # 이메일 보내기
-                            email = EmailMessage('idoldb 회원가입 메일 인증입니다.', message, to=[account.email])
+                            email = EmailMessage('idoldb 회원가입 메일 인증입니다.', message, to=[User.email])
                             email.send()
 
         rDict['now'] = 'signup'
@@ -438,51 +435,6 @@ class register(View):
             return redirect('idolMain')
         rDict['isLogin'] = req.session['isLogin']
         return render(req, 'idoldb/signup.html', rDict)
-
-
-class emailActivate(View):
-    def get(self, req, uid, token):
-        rDict = dict()
-        if not Account.objects.filter(id=int(uid)).exists():
-            # 왜 없는 계정을 인증하려고 하시죠?
-            rDict['error'] = '잘못된 접근입니다.'
-        else:
-            account = Account.objects.get(id=int(uid))
-
-            if account.emailActivate:
-                # 이미 인증 되셨습니다만?
-                rDict['error'] = '이미 인증되었습니다.'
-            else:
-
-                if not account.token == token:
-                    # 왜 토큰이 다르죠?
-                    rDict['error'] = '잘못된 접근입니다.'
-
-                else:
-                    # 계정 활성화
-                    account.emailActivate = True
-                    account.token = get_token(uuid.uuid4().urn.__str__())
-
-                    account.save()
-
-                    # 정상종료
-                    rDict['error'] = '메일 인증이 완료되었습니다.'
-
-        rDict['now'] = 'logPage'
-        if not req.session.get('isLogin', False):
-            req.session['isLogin'] = False
-        if req.session['isLogin']:
-            token = req.session['token']
-            rDict['token'] = token
-
-            o = Account.objects
-            if o.filter(token=token).exists():
-                rDict['user'] = o.get(token=token)
-            else:
-                req.session['isLogin'] = False
-
-        rDict['isLogin'] = req.session['isLogin']
-        return render(req, 'idoldb/logpage.html', rDict)
 
 
 class logout(View):
@@ -506,7 +458,7 @@ class login(View):
 
     def post(self, req):
         req_data = req.POST
-        ob = Account.objects
+        ob = User.objects
         if not ob.filter(email=req_data['email']).exists():
             rDict = dict()
             rDict['now'] = 'login'
@@ -519,8 +471,8 @@ class login(View):
 
             return render(req, 'idoldb/login.html', rDict)
 
-        account = ob.get(email=req_data['email'])
-        if account.password.split(':')[1] != get_sha512(account.password.split(':')[0] + req_data['password']):
+        User = ob.get(email=req_data['email'])
+        if User.password.split(':')[1] != get_sha512(User.password.split(':')[0] + req_data['password']):
             rDict = dict()
             rDict['now'] = 'login'
             if not req.session.get('isLogin', False):
@@ -532,7 +484,7 @@ class login(View):
 
             return render(req, 'idoldb/login.html', rDict)
 
-        if not account.emailActivate:
+        if not User.emailActivate:
             rDict = dict()
             rDict['now'] = 'login'
             if not req.session.get('isLogin', False):
@@ -544,12 +496,12 @@ class login(View):
 
             return render(req, 'idoldb/login.html', rDict)
 
-        token_tmp = get_token(account.password.split(":")[0])
-        account.token = token_tmp
-        account.save()
+        token_tmp = get_token(User.password.split(":")[0])
+        User.token = token_tmp
+        User.save()
 
         req.session['isLogin'] = True
-        req.session['token'] = account.token
+        req.session['token'] = User.token
         return redirect('idolMain')
 
 
@@ -568,7 +520,7 @@ class cameLog(View):
             should_refresh = True
 
         if should_refresh:
-            return redirect(cameLog)
+            return redirect('cameLog')
 
         index: int = int(req.session['index_log']) - 1
 
@@ -578,7 +530,7 @@ class cameLog(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -611,7 +563,7 @@ class cameLog(View):
     def post(self, req):
         rDict = dict()
         req_data = req.POST
-        o = Account.objects
+        o = User.objects
         oc = CameLog.objects
 
         if req.session['isLogin']:
@@ -622,15 +574,15 @@ class cameLog(View):
                 today_start = datetime.combine(today, time())
                 today_end = datetime.combine(tomorrow, time())
 
-                account = o.get(token=req.session['token'])
-                if oc.filter(user=account).order_by('-date').filter(date__gte=today_start).filter(
+                User = o.get(token=req.session['token'])
+                if oc.filter(user=User).order_by('-date').filter(date__gte=today_start).filter(
                         date__lt=today_end).exists():
                     rDict['error'] = "이미 오늘 작성했습니다."
                 else:
                     if not 1 <= len(req_data['title']) <= 20:
                         rDict['error'] = "제목은 20자리 내"
                     else:
-                        comment = CameLog(user=account, title=req_data['title'], info=req_data['info'])
+                        comment = CameLog(user=User, title=req_data['title'], info=req_data['info'])
                         comment.save()
                         rDict['error'] = "작성되었습니다!"
             else:
@@ -650,7 +602,7 @@ class cameLog(View):
             should_refresh = True
 
         if should_refresh:
-            return redirect(cameLog)
+            return redirect('cameLog')
 
         index: int = int(req.session['index_log']) - 1
 
@@ -660,7 +612,7 @@ class cameLog(View):
             token = req.session['token']
             rDict['token'] = token
 
-            o = Account.objects
+            o = User.objects
             if o.filter(token=token).exists():
                 rDict['user'] = o.get(token=token)
             else:
@@ -714,7 +666,7 @@ class IdolViewSet(viewsets.ModelViewSet):
                     Qp |= Q(production=now_production)
                 Qs &= Qp
 
-            result=queryset.filter(Qs)
+            result = queryset.filter(Qs)
 
         paginator = PageNumberPagination()
 
