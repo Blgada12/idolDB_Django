@@ -29,6 +29,7 @@ def productions_click_controller(req):
         return True
     return False
 
+
 def auto_login_controller(req):
     user = None
     isLogin = req.session.get('isLogin', False)

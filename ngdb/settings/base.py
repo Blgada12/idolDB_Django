@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     'idolmaster',
     'users',
+    'community',
 
     'rest_framework',
     'rest_framework_swagger',

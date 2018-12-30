@@ -40,7 +40,7 @@
         <ul class="pagination justify-content-center">
             {% if canDown %}
                 <li class="page-item">
-                    <a class="page-link" href="{% url 'idolSearch' search_value %}?index={{ canDown }}">Previous</a>
+                    <a class="page-link" href="{% url 'idolSearch' search_value %}?index={{ canDown }}">이전</a>
                     {% else %}
                 <li class="page-item disabled">
                 <span class="page-link">Previous</span>
@@ -58,7 +58,7 @@
             {% endfor %}
             {% if canUp %}
                 <li class="page-item">
-                    <a class="page-link" href="{% url 'idolSearch' search_value %}?index={{ canUp }}">Next</a>
+                    <a class="page-link" href="{% url 'idolSearch' search_value %}?index={{ canUp }}">다음</a>
                     {% else %}
                 <li class="page-item disabled">
                 <span class="page-link">Next</span>

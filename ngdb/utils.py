@@ -1,8 +1,7 @@
-from django.shortcuts import redirect
-
-from idolmaster.models import Idol
 import hashlib
 import time
+
+from idolmaster.models import Idol
 
 
 def get_idol_byId(p0):

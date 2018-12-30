@@ -66,6 +66,8 @@ class idolAll(View):
     def get(self, req):
         if req.GET.get('index'):
             index = int(req.GET.get('index'))-1
+            if index == 0:
+                return redirect('idolAll')
         else:
             index = 0
         if productions_click_controller(req):
@@ -105,6 +107,8 @@ class idolSearch(View):
             return redirect('idolAll')
         if req.GET.get('index'):
             index = int(req.GET.get('index'))-1
+            if index == 0:
+                return redirect('idolSearch', value)
         else:
             index = 0
 

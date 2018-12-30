@@ -74,7 +74,7 @@
                         <a class="page-link" href="{% url 'cameLog' %}?index={{ canDown }}">Previous</a>
                         {% else %}
                     <li class="page-item disabled">
-                    <span class="page-link">Previous</span>
+                    <span class="page-link">이전</span>
                 {% endif %}
                 {% for index in full_index %}
                     {% if index == now_index %}
@@ -89,7 +89,7 @@
                 {% endfor %}
                 {% if canUp %}
                     <li class="page-item">
-                        <a class="page-link" href="{% url 'cameLog' %}?index={{ canUp }}">Next</a>
+                        <a class="page-link" href="{% url 'cameLog' %}?index={{ canUp }}">다음</a>
                         {% else %}
                     <li class="page-item disabled">
                     <span class="page-link">Next</span>

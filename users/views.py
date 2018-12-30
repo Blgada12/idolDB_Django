@@ -1,20 +1,9 @@
-import math
-import uuid
-from datetime import datetime, timedelta, time
-
-from django.core.mail import EmailMessage
-from django.db.models import Q
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
-from django.utils import timezone
 from django.views import View
 
 from users.exceptions import SameError, PasswordNotMatchError
 from users.models import User
 from .forms import LoginForm, RegisterForm
-from idolmaster.views import idolMain
-from rest_framework import viewsets, permissions
-from rest_framework.pagination import PageNumberPagination
 
 
 def check_login(p0):
@@ -68,3 +57,5 @@ class Register(View):
             self.rDict['error'] = e.msg
         finally:
             return render(req, 'account/signup.html', self.rDict)
+
+
