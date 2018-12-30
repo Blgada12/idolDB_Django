@@ -8,7 +8,8 @@ def productions_click_controller(req):
     productions: str = req.GET.get('productions')
     if productions:
         req.session['productions'] = productions.split(',')
-        return redirect('idolMain')
+
+        return True
 
     clicked: str = req.GET.get('clicked')
     if clicked:
@@ -17,7 +18,7 @@ def productions_click_controller(req):
         pro_selected.sort()
         req.session['productions'] = pro_selected
 
-        return redirect('idolMain')
+        return True
 
     unclicked: str = req.GET.get('unclicked')
     if unclicked:
@@ -25,8 +26,8 @@ def productions_click_controller(req):
         pro_selected.remove(unclicked)
         req.session['productions'] = pro_selected
 
-        return redirect('idolMain')
-
+        return True
+    return False
 
 def auto_login_controller(req):
     user = None

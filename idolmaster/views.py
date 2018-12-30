@@ -6,12 +6,11 @@ from django.utils import timezone
 from django.views import View
 from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
-from idolmaster.utils import productions_click_controller, auto_login_controller, productions_filter_controller
 
-from users.models import User
+from idolmaster.utils import productions_click_controller, auto_login_controller, productions_filter_controller
+from ngdb.utils import get_idol_byId
 from .models import Idol, Production
 from .serializers import IdolSerializer
-from ngdb.utils import get_idol_byId
 
 AFTER_INDEX = 3
 PAGE_INDEX = 14
@@ -19,7 +18,8 @@ PAGE_INDEX = 14
 
 class idolMain(View):
     def get(self, req):
-        productions_click_controller(req)
+        if productions_click_controller(req):
+            return redirect('idolMain')
         isLogin, user = auto_login_controller(req)
         op, selected_pro = productions_filter_controller(req)
 
@@ -64,41 +64,24 @@ class idolMain(View):
 
 class idolAll(View):
     def get(self, req):
-
-        productions_click_controller(req)
+        if req.GET.get('index'):
+            index = int(req.GET.get('index'))-1
+        else:
+            index = 0
+        if productions_click_controller(req):
+            return redirect('idolAll')
         isLogin, user = auto_login_controller(req)
 
         oi = Idol.objects
         idols = oi.all()
+        op, selected_pro = productions_filter_controller(req)
 
-        # 전부 헤제되거나 처음접속이면 모두선택
-        productions: str = req.GET.get('production')
-        if productions:
-            req.session['productions'] = productions
-            return redirect('idolAll')
-
-        pro_Objects = Production.objects.all()
         result = list()
-
-        selected_pro = list()
-        if req.session.get('productions', False):
-            for i in req.session.get('productions'):
-                selected_pro.append(Production.objects.get(id=int(i)))
-        else:
-            tmp = list()
-            for i in pro_Objects:
-                tmp.append(str(i.id))
-                selected_pro.append(i)
-            req.session['productions'] = tmp
-
         for i in selected_pro:
             result.extend(idols.filter(production=i))
 
-        if not req.session.get('isLogin', False):
-            req.session['isLogin'] = False
-
-        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
-                 'selected_pro': selected_pro, 'now_index': index + 1}
+        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': op.all(),
+                 'selected_pro': selected_pro, 'now_index': index + 1, 'isLogin': isLogin, 'user': user}
 
         if index > 0:
             rDict['canDown'] = index
@@ -108,9 +91,9 @@ class idolAll(View):
             rDict['canUp'] = index + 2
         else:
             rDict['canUp'] = None
-        rindex = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
-        rindex.sort()
-        rDict['full_index'] = rindex
+        return_index = list(set(range(index - 1, index + 4)) & set(range(1, int(math.ceil(len(result) / PAGE_INDEX)) + 1)))
+        return_index.sort()
+        rDict['full_index'] = return_index
         rDict['now'] = 'all'
 
         return render(req, 'idoldb/all.html', rDict)
@@ -120,75 +103,21 @@ class idolSearch(View):
     def get(self, req, value=''):
         if value == '':
             return redirect('idolAll')
-        should_refresh = False
-        if req.session.get('last_search', False):
-            if not req.session.get('last_search') == value:
-                req.session['index_search'] = 1
-                should_refresh = True
+        if req.GET.get('index'):
+            index = int(req.GET.get('index'))-1
         else:
-            req.session['index_search'] = 1
-            should_refresh = True
-        req.session['last_search'] = value
-        # 인덱싱 기능
-        index: str = req.GET.get('index')
-        if index:
-            req.session['index_search'] = index
-            should_refresh = True
+            index = 0
 
-        if not req.session.get('index_search', False):
-            req.session['index_search'] = 1
-            should_refresh = True
-
-        index: int = int(req.session['index_search']) - 1
-
-        # 분류 추가
-        clicked: str = req.GET.get('clicked_search')
-        if clicked:
-            pro_selected: list = req.session.get('productions')
-            pro_selected.append(clicked)
-            pro_selected.sort()
-            req.session['productions'] = pro_selected
-            req.session['index_search'] = 1
-
-            should_refresh = True
-
-        # 분류 제외
-        unclicked: str = req.GET.get('unclicked')
-        if unclicked:
-            pro_selected: list = req.session.get('productions')
-            pro_selected.remove(unclicked)
-            req.session['productions'] = pro_selected
-            req.session['index_search'] = 1
-
-            should_refresh = True
-
-        # 전부 헤제되거나 처음접속이면 모두선택
-        productions: str = req.GET.get('production')
-        if productions:
-            req.session['productions'] = productions
-            should_refresh = True
-
-        if should_refresh:
+        if productions_click_controller(req):
             return redirect('idolSearch', value)
+        isLogin, user = auto_login_controller(req)
 
-        idols = Idol.objects.all()
+        oi = Idol.objects
+        op, selected_pro = productions_filter_controller(req)
 
-        idols = idols.filter(KoreanName__icontains=value)
+        idols = oi.filter(KoreanName__icontains=value)
 
-        pro_Objects = Production.objects.all()
         result = list()
-
-        selected_pro = list()
-        if req.session.get('productions', False):
-            for i in req.session.get('productions'):
-                selected_pro.append(Production.objects.get(id=int(i)))
-        else:
-            tmp = list()
-            for i in pro_Objects:
-                tmp.append(str(i.id))
-                selected_pro.append(i)
-            req.session['productions'] = tmp
-
         for i in selected_pro:
             result.extend(idols.filter(production=i))
 
@@ -196,9 +125,9 @@ class idolSearch(View):
             req.session['index_search'] = 1
             index = 0
 
-        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': pro_Objects,
+        rDict = {'idols': result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)], 'productions': op.all(),
                  'selected_pro': selected_pro, 'now_index': index + 1,
-                 'search_value': value, 'is_none': len(result) == 0}
+                 'search_value': value, 'is_none': len(result) == 0, 'isLogin': isLogin, 'user': user}
 
         if index > 0:
             rDict['canDown'] = index

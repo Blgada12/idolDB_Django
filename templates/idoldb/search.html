@@ -6,11 +6,11 @@
     <div class="pro_select">
         {% for pro in productions %}
             {% if pro in selected_pro %}
-                <a class="cardLink" href="{% url 'idolAll' %}?unclicked={{ pro.id }}">
+                <a class="cardLink" href="{% url 'idolSearch' search_value %}?unclicked={{ pro.id }}">
                     <img id="{{ pro.name }}" class="pro_select_img_checked" src="/static/{{ pro.logo.name }}">
                 </a>
             {% else %}
-                <a class="cardLink" href="{% url 'idolAll' %}?clicked={{ pro.id }}">
+                <a class="cardLink" href="{% url 'idolSearch' search_value %}?clicked={{ pro.id }}">
                     <img id="{{ pro.name }}" class="pro_select_img" src="/static/{{ pro.logo.name }}">
                 </a>
             {% endif %}
