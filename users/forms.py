@@ -1,10 +1,10 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from .utils import get_token
+from ngdb.utils import get_token
 from .models import User
 from .managers import UserManager
-from .exceptions import SameError, PasswordNoneMatchError, DoNotMatchWithTypeError
+from .exceptions import SameError, PasswordNotMatchError, DoNotMatchWithTypeError
 from django.contrib.auth.hashers import (
     check_password
 )
@@ -34,8 +34,6 @@ class LoginForm(forms.ModelForm):
         if check_password(self.data.get('password'), user.password):
             user.token = get_token(user.uuid.urn.__str__())
             user.save()
-            if not user.is_student:
-                raise DoNotMatchWithTypeError('학생')
             return user
         else:
             raise User.DoesNotExist
@@ -57,15 +55,13 @@ class TokenLoginForm(forms.Form):
         uo = User.objects
 
         user = uo.get(token=self.data.get('token'))
-        if user.is_student:
-            raise DoNotMatchWithTypeError('학생')
         if refresh:
             user.token = get_token(user.uuid.urn.__str__())
             user.save()
         return user
 
 
-class UserRegisterForm(forms.ModelForm):
+class RegisterForm(forms.ModelForm):
     password1 = forms.CharField(
         label='Password',
         widget=forms.PasswordInput(
@@ -95,7 +91,7 @@ class UserRegisterForm(forms.ModelForm):
         password1 = self.cleaned_data.get("password1")
         password2 = self.cleaned_data.get("password2")
         if password1 and password2 and password1 != password2:
-            raise PasswordNoneMatchError()
+            raise PasswordNotMatchError()
         return password2
 
     def save(self, commit=True):
@@ -103,11 +99,10 @@ class UserRegisterForm(forms.ModelForm):
         if uo.filter(email=self.data.get('email')).exists():
             raise SameError('이메일')
 
-        user = super(UserRegisterForm, self).save(commit=False)
+        user = super(RegisterForm, self).save(commit=False)
 
         user.email = UserManager.normalize_email(self.cleaned_data['email'])
         user.set_password(self.clean_password2())
-        user.is_student = True
         user.token = get_token(user.uuid.urn.__str__())
 
         if commit:

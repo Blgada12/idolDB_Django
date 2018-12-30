@@ -46,6 +46,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         null=True
     )
 
+    token = models.TextField(
+        default=''
+    )
+
     objects = UserManager()
 
     USERNAME_FIELD = 'email'

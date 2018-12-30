@@ -1,5 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
-from .utils import get_sha512, get_token
+from ngdb.utils import get_sha512, get_token
 
 
 class UserManager(BaseUserManager):

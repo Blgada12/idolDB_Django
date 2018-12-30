@@ -6,7 +6,7 @@ class SameError(Exception):
         return self.msg
 
 
-class PasswordNoneMatchError(Exception):
+class PasswordNotMatchError(Exception):
     def __init__(self):
         self.msg = '비밀번호와 비밀번호 확인이 다릅니다!'
 

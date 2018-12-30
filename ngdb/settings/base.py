@@ -1,6 +1,8 @@
 import os
 import json
 
+PROJECT_NAME = 'ngdb'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
