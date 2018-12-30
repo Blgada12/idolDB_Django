@@ -1,6 +1,8 @@
 import os
 import json
 
+PROJECT_NAME = 'ngdb'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -32,10 +34,14 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'idolmaster',
+    'users',
+    'community',
 
     'rest_framework',
     'rest_framework_swagger',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

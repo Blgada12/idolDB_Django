@@ -53,30 +53,3 @@ class BeforeIdol(models.Model):
 
     def __str__(self):
         return self.KoreanName
-
-
-class Account(models.Model):
-    nickname = models.CharField(max_length=10)
-    myIdol = models.ForeignKey(Idol, on_delete=models.CASCADE, blank=True, null=True)
-    email = models.EmailField()
-    password = models.TextField()
-    token = models.TextField()
-    emailActivate = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.nickname
-
-    def emailVerify(self):
-        self.emailActivate = True
-        self.save()
-        return self.token
-
-
-class CameLog(models.Model):
-    user = models.ForeignKey(Account, on_delete=models.CASCADE)
-    title = models.CharField(max_length=20)
-    info = models.TextField()
-    date = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.title

@@ -1,0 +1,155 @@
+{% extends 'idoldb/../util/base.html' %}
+{% block content %}
+    <head>
+        {% if idol %}
+            <title>{{ idol.KoreanName }}</title>
+        {% else %}
+            <title>찾을 수 없습니다.</title>
+        {% endif %}
+    </head>
+    <body class="design1">
+    {% if idol %}
+        <div class="idolcardGroup">
+            <div>
+                <img class="detail_img" src="/static/{{ idol.mainPicture.name }}" alt="">
+            </div>
+            <div class="profile_detail" style="border:2px solid {{ idol.color }};">
+                <div class="card_detail">
+                    <h3>
+                        {{ idol.KoreanName }}
+                    </h3>
+                    {{ idol.KanjiName }}({{ idol.JapaneseName }})
+                </div>
+                <div class="card_info">
+                    <table id="table_card">
+                        <tr>
+                            <td class="tdTitle">
+                                나이
+                            </td>
+                            <td class="tdInfo">
+                                {% if idol.age %}
+                                    {{ idol.age }}세
+                                {% else %}
+                                    불명
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                키
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.height }}cm
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                몸무게
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.weight }}kg
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                생일
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.birth.month }}월 {{ idol.birth.day }}일
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                혈액형
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.bloodType }}형
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                B-W-H
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.BWH }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                취미(특기)<br>[좋아하는 것]
+                            </td>
+
+                            <td class="tdInfo2">
+                                {% if idol.hobby %}
+                                    {{ idol.hobby }}
+                                {% else %}
+                                    비공개
+                                {% endif %}
+                            </td>
+
+                        </tr>
+                        {% if idol.bornPlace %}
+                            <tr>
+                                <td>
+                                    출신지
+                                </td>
+                                <td class="tdInfo">
+                                    {{ idol.bornPlace }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td>
+                                성우
+                            </td>
+                            <td class="tdInfo">
+                                {{ idol.voice }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                소속
+                            </td>
+                            <td class="tdInfo3">
+                                <img class="pro_img" src="/static/{{ idol.production.logo.name }}" alt="">
+                            </td>
+                        </tr>
+                        {% if idol.signPicture %}
+                            <tr>
+                                <td>
+                                    사인
+                                </td>
+                                <td class="tdInfo3">
+                                    <img class="sign_img" src="/static/{{ idol.signPicture.name }}" alt="">
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if isLogin %}
+                            {% if user.myIdol.id != idol.id %}
+                                <tr>
+                                    <td>
+                                        담당 아이돌
+                                    </td>
+                                    <td class="tdInfo3">
+                                        <form action="/detail/{{ idol.id }}" accept-charset="utf-8" name="detail"
+                                              method="post"> {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-success">지정하기</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endif %}
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    {% else %}
+        <div>다시 시도해주세요</div>
+    {% endif %}
+
+
+    </body>
+{% endblock %}
