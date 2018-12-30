@@ -2,7 +2,7 @@
 
 ## 개요
 
-> http://idoldb.ngdb.kr 에 서빙중인 아이돌마스터 캐릭터들의 생일을 보는 데이터베이스입니다.
+> https://idoldb.ngdb.kr 에 서빙중인 아이돌마스터 캐릭터들의 생일을 보는 데이터베이스입니다.
 
 ## API 사용법
 
@@ -123,6 +123,11 @@ settings_deploy.json<br><br><code>{
 <br><br>
 
 ###버전
+<h5>1.0.0</h5>
+https로 서비스 시작<br>
+계정 관리를 모두 기본 auth로 변경<br>
+인덱싱 관리를 세션에서 GET으로 변경<br>
+기타 쿼리 최적화
 <h5>Alpha v12.3.1_drf</h5>
 rest Api 가동<br>
 view를 모두 제네릭뷰로 리메이크
