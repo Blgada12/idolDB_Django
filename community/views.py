@@ -44,7 +44,7 @@ class CameLogView(View):
         rindex.sort()
         rDict['full_index'] = rindex
 
-        rDict['isLogin'] = req.session['isLogin']
+        rDict['isLogin'] = isLogin
         rDict['now'] = 'camelog'
         rDict['now_index'] = index + 1
         rDict['camelogs'] = result[PAGE_INDEX * index:PAGE_INDEX * (index + 1)]

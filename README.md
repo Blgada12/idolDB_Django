@@ -2,12 +2,13 @@
 
 ## 개요
 
-> https://idoldb.ngdb.kr 에 서빙중인 아이돌마스터 캐릭터들의 생일을 보는 데이터베이스입니다.
+> https://idoldb.iptime.org, https://birth.xn--db-vf0ju60a7id96d.kr 에 서빙중인 아이돌마스터 캐릭터들의 생일을 보는 데이터베이스입니다.
 
 ## API 사용법
 
 #### 모든 아이돌
->http://idoldb.ngdb.kr/api/idols/
+>https://idoldb.iptime.org/api/idols/<br>
+>https://birth.xn--db-vf0ju60a7id96d.kr/api/idols/
 
 method: GET<br>
 parameter: None
