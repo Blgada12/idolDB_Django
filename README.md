@@ -44,7 +44,8 @@ response:
 </pre>
 
 #### 아이돌 검색
->http://idoldb.ngdb.kr/api/idols/
+>https://idoldb.iptime.org/api/idols/<br>
+>https://birth.xn--db-vf0ju60a7id96d.kr/api/idols/
 
 method: GET<br>
 parameter:<br><br>
